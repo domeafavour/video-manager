@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, shell, nativeImage } from 'electron'
 // import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -107,6 +107,14 @@ ipcMain.handle('db:delete-material', (_, id: number) => {
 
 ipcMain.handle('app:open-file-location', (_, filePath: string) => {
   shell.showItemInFolder(filePath)
+})
+
+ipcMain.on('app:start-drag', (event, filePath: string) => {
+  const icon = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')
+  event.sender.startDrag({
+    file: filePath,
+    icon: icon,
+  })
 })
 
 app.on('activate', () => {

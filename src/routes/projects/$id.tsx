@@ -250,13 +250,20 @@ function RouteComponent() {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          {materials.map((material) => (
-            <ContextMenu key={material.id}>
-              <ContextMenuTrigger>
-                <div
-                  className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center flex-1 min-w-0 mr-4">
+              {materials.map((material, index) => (
+                <ContextMenu key={material.id}>
+                  <ContextMenuTrigger>
+                    <div
+                      draggable
+                      onDragStart={(e) => {
+                        e.preventDefault();
+                        db.startDrag(material.path);
+                      }}
+                      className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-move ${
+                        index !== materials.length - 1 ? "border-b" : ""
+                      }`}
+                    >
+                      <div className="flex items-center flex-1 min-w-0 mr-4">
                     <div className="mr-4">
                       <MaterialThumbnail path={material.path} />
                     </div>

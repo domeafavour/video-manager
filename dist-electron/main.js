@@ -1,4 +1,4 @@
-import { app, ipcMain, dialog, shell, BrowserWindow } from "electron";
+import { app, ipcMain, dialog, shell, nativeImage, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fs from "node:fs";
@@ -163,6 +163,13 @@ ipcMain.handle("db:delete-material", (_, id) => {
 });
 ipcMain.handle("app:open-file-location", (_, filePath) => {
   shell.showItemInFolder(filePath);
+});
+ipcMain.on("app:start-drag", (event, filePath) => {
+  const icon = nativeImage.createFromDataURL("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==");
+  event.sender.startDrag({
+    file: filePath,
+    icon
+  });
 });
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {

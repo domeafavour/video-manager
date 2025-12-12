@@ -11,6 +11,7 @@ export const db = {
   saveMaterial: (material: Partial<MaterialEntity>) => window.ipcRenderer.invoke('db:save-material', material) as Promise<MaterialEntity>,
   deleteMaterial: (id: number) => window.ipcRenderer.invoke('db:delete-material', id) as Promise<number>,
   openFileLocation: (path: string) => window.ipcRenderer.invoke('app:open-file-location', path) as Promise<void>,
+  startDrag: (path: string) => window.ipcRenderer.send('app:start-drag', path),
 }
 
 
