@@ -1,4 +1,4 @@
-import { app, ipcMain, dialog, BrowserWindow } from "electron";
+import { app, ipcMain, dialog, shell, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fs from "node:fs";
@@ -103,7 +103,8 @@ function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.mjs")
+      preload: path.join(__dirname$1, "preload.mjs"),
+      webSecurity: false
     }
   });
   win.webContents.on("did-finish-load", () => {
@@ -159,6 +160,9 @@ ipcMain.handle("db:save-material", (_, material) => {
 });
 ipcMain.handle("db:delete-material", (_, id) => {
   return deleteMaterial(id);
+});
+ipcMain.handle("app:open-file-location", (_, filePath) => {
+  shell.showItemInFolder(filePath);
 });
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {

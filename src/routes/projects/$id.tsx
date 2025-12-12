@@ -5,6 +5,19 @@ import { ProjectEntity, MaterialEntity } from "@/typings";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+} from "@/components/ui/context-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/projects/$id")({
   component: RouteComponent,
@@ -16,6 +29,7 @@ function RouteComponent() {
   const [project, setProject] = useState<ProjectEntity | null>(null);
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [title, setTitle] = useState("");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProject = async () => {
@@ -62,6 +76,22 @@ function RouteComponent() {
     }
   };
 
+  const handleOpenFolder = (path: string) => {
+    db.openFileLocation(path);
+  };
+
+  const handleCopyPath = (path: string) => {
+    navigator.clipboard.writeText(path);
+  };
+
+  const handlePreview = (path: string) => {
+    setPreviewImage(`file://${path}`);
+  };
+
+  const isImage = (path: string) => {
+    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(path);
+  };
+
   function formatBytes(bytes: number, decimals = 2) {
     if (!+bytes) return '0 Bytes'
     const k = 1024
@@ -103,32 +133,58 @@ function RouteComponent() {
 
         <div className="grid grid-cols-1 gap-4">
           {materials.map((material) => (
-            <div
-              key={material.id}
-              className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex-1 min-w-0 mr-4">
-                <div className="font-medium truncate" title={material.name}>
-                  {material.name}
+            <ContextMenu key={material.id}>
+              <ContextMenuTrigger>
+                <div
+                  className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex-1 min-w-0 mr-4">
+                    <div className="font-medium truncate" title={material.name}>
+                      {material.name}
+                    </div>
+                    <div className="text-sm text-gray-500 truncate" title={material.path}>
+                      {material.path}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-sm text-gray-500">
+                      {formatBytes(material.size)}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteMaterial(material.id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500 truncate" title={material.path}>
-                  {material.path}
-                </div>
-              </div>
-              <div className="flex items-center gap-4 shrink-0">
-                <div className="text-sm text-gray-500">
-                  {formatBytes(material.size)}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                {isImage(material.path) && (
+                  <ContextMenuItem onClick={() => handlePreview(material.path)}>
+                    Preview
+                  </ContextMenuItem>
+                )}
+                <ContextMenuItem onClick={() => handleOpenFolder(material.path)}>
+                  Open containing folder
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => handleCopyPath(material.path)}>
+                  Copy path
+                </ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem
+                  className="text-red-600 focus:text-red-600"
                   onClick={() => handleDeleteMaterial(material.id)}
                 >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+                  Delete
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           ))}
           {materials.length === 0 && (
             <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
@@ -137,6 +193,19 @@ function RouteComponent() {
           )}
         </div>
       </div>
+
+      <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+        <DialogContent className="max-w-4xl w-full h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Preview</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
+            {previewImage && (
+              <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
