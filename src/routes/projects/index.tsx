@@ -40,14 +40,11 @@ function RouteComponent() {
             params={{ id: project.id.toString() }}
             className="group block border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
           >
-            <div className="aspect-square p-4 flex flex-col">
+            <div className="aspect-square p-2 flex flex-col">
               {/* Thumbnails Grid */}
-              <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-2 mb-4">
+              <div className="flex-1 grid grid-cols-3 grid-rows-2 mb-4 rounded-sm overflow-hidden">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-gray-100 border border-gray-200 rounded-sm"
-                  />
+                  <div key={i} className="bg-gray-100 border border-gray-200" />
                 ))}
               </div>
 
