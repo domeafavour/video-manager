@@ -1,3 +1,4 @@
+import { ProjectEntity } from "@/typings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
@@ -5,22 +6,18 @@ export const Route = createFileRoute("/projects/")({
   component: RouteComponent,
 });
 
-interface Project {
-  id: string;
-  title: string;
-  thumbnailCount: number;
-}
-
-const MOCK_PROJECTS: Project[] = [
+const MOCK_PROJECTS: ProjectEntity[] = [
   {
-    id: "1",
+    id: 1,
     title: "Summer Vacation",
-    thumbnailCount: 6,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
   },
   {
-    id: "2",
+    id: 2,
     title: "Product Demo",
-    thumbnailCount: 6,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
   },
 ];
 
@@ -34,7 +31,7 @@ function RouteComponent() {
           <Link
             key={project.id}
             to="/projects/$id"
-            params={{ id: project.id }}
+            params={{ id: project.id + "" }}
             className="group block border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
           >
             <div className="aspect-square p-4 flex flex-col">
