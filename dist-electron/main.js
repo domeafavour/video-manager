@@ -1,15 +1,13 @@
-import { app, ipcMain, dialog, shell, BrowserWindow } from "electron";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import fs from "node:fs";
-import Database from "better-sqlite3";
-const DB_NAME = "database.sqlite";
-let db;
-function initDB() {
-  const dbPath = path.join(app.getPath("userData"), DB_NAME);
-  db = new Database(dbPath);
-  db.pragma("journal_mode = WAL");
-  db.exec(`
+import { app as l, ipcMain as o, dialog as L, shell as f, BrowserWindow as c } from "electron";
+import { fileURLToPath as O } from "node:url";
+import n from "node:path";
+import h from "node:fs";
+import j from "better-sqlite3";
+const S = "database.sqlite";
+let a;
+function _() {
+  const e = n.join(l.getPath("userData"), S);
+  a = new j(e), a.pragma("journal_mode = WAL"), a.exec(`
     CREATE TABLE IF NOT EXISTS projects (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT,
@@ -30,151 +28,112 @@ function initDB() {
     );
   `);
 }
-function getProjects() {
-  return db.prepare("SELECT * FROM projects ORDER BY updatedAt DESC").all();
+function D() {
+  return a.prepare("SELECT * FROM projects ORDER BY updatedAt DESC").all();
 }
-function getProject(id) {
-  return db.prepare("SELECT * FROM projects WHERE id = ?").get(id);
+function P(e) {
+  return a.prepare("SELECT * FROM projects WHERE id = ?").get(e);
 }
-function saveProject(project) {
-  const now = Date.now();
-  if (project.id) {
-    const stmt = db.prepare(`
+function b(e) {
+  const t = Date.now();
+  if (e.id)
+    return a.prepare(`
       UPDATE projects 
       SET title = @title, updatedAt = @updatedAt
       WHERE id = @id
-    `);
-    stmt.run({ ...project, updatedAt: now });
-    return { ...project, updatedAt: now };
-  } else {
-    const stmt = db.prepare(`
+    `).run({ ...e, updatedAt: t }), { ...e, updatedAt: t };
+  {
+    const r = a.prepare(`
       INSERT INTO projects (title, createdAt, updatedAt)
       VALUES (@title, @createdAt, @updatedAt)
-    `);
-    const info = stmt.run({ ...project, createdAt: now, updatedAt: now });
-    return { ...project, id: Number(info.lastInsertRowid), createdAt: now, updatedAt: now };
+    `).run({ ...e, createdAt: t, updatedAt: t });
+    return { ...e, id: Number(r.lastInsertRowid), createdAt: t, updatedAt: t };
   }
 }
-function deleteProject(id) {
-  db.prepare("DELETE FROM projects WHERE id = ?").run(id);
-  return id;
+function g(e) {
+  return a.prepare("DELETE FROM projects WHERE id = ?").run(e), e;
 }
-function getMaterials() {
-  return db.prepare("SELECT * FROM materials ORDER BY updatedAt DESC").all();
+function w() {
+  return a.prepare("SELECT * FROM materials ORDER BY updatedAt DESC").all();
 }
-function getProjectMaterials(projectId) {
-  return db.prepare("SELECT * FROM materials WHERE projectId = ? ORDER BY updatedAt DESC").all(projectId);
+function U(e) {
+  return a.prepare("SELECT * FROM materials WHERE projectId = ? ORDER BY updatedAt DESC").all(e);
 }
-function saveMaterial(material) {
-  const now = Date.now();
-  if (material.id) {
-    const stmt = db.prepare(`
+function u(e) {
+  const t = Date.now();
+  if (e.id) {
+    const d = a.prepare(`
       UPDATE materials 
       SET projectId = @projectId, alias = @alias, name = @name, size = @size, path = @path, updatedAt = @updatedAt
       WHERE id = @id
-    `);
-    const params = { ...material, updatedAt: now };
-    if (params.alias === void 0) params.alias = null;
-    stmt.run(params);
-    return { ...material, updatedAt: now };
+    `), r = { ...e, updatedAt: t };
+    return r.alias === void 0 && (r.alias = null), d.run(r), { ...e, updatedAt: t };
   } else {
-    const stmt = db.prepare(`
+    const d = a.prepare(`
       INSERT INTO materials (projectId, alias, name, size, path, createdAt, updatedAt)
       VALUES (@projectId, @alias, @name, @size, @path, @createdAt, @updatedAt)
-    `);
-    const params = { ...material, createdAt: now, updatedAt: now };
-    if (params.alias === void 0) params.alias = null;
-    const info = stmt.run(params);
-    return { ...material, id: Number(info.lastInsertRowid), createdAt: now, updatedAt: now };
+    `), r = { ...e, createdAt: t, updatedAt: t };
+    r.alias === void 0 && (r.alias = null);
+    const i = d.run(r);
+    return { ...e, id: Number(i.lastInsertRowid), createdAt: t, updatedAt: t };
   }
 }
-function deleteMaterial(id) {
-  db.prepare("DELETE FROM materials WHERE id = ?").run(id);
-  return id;
+function C(e) {
+  return a.prepare("DELETE FROM materials WHERE id = ?").run(e), e;
 }
-const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
-process.env.APP_ROOT = path.join(__dirname$1, "..");
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
-let win;
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+const T = n.dirname(O(import.meta.url));
+process.env.APP_ROOT = n.join(T, "..");
+const p = process.env.VITE_DEV_SERVER_URL, W = n.join(process.env.APP_ROOT, "dist-electron"), R = n.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = p ? n.join(process.env.APP_ROOT, "public") : R;
+let s;
+function A() {
+  s = new c({
+    icon: n.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.mjs"),
-      webSecurity: false
+      preload: n.join(T, "preload.mjs"),
+      webSecurity: !1
     }
-  });
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(path.join(RENDERER_DIST, "index.html"));
-  }
+  }), s.webContents.on("did-finish-load", () => {
+    s == null || s.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), p ? s.loadURL(p) : s.loadFile(n.join(R, "index.html"));
 }
-ipcMain.handle("db:get-projects", () => {
-  return getProjects();
-});
-ipcMain.handle("db:get-project", (_, id) => {
-  return getProject(id);
-});
-ipcMain.handle("db:save-project", (_, project) => {
-  return saveProject(project);
-});
-ipcMain.handle("db:delete-project", (_, id) => {
-  return deleteProject(id);
-});
-ipcMain.handle("db:get-materials", () => {
-  return getMaterials();
-});
-ipcMain.handle("db:get-project-materials", (_, projectId) => {
-  return getProjectMaterials(projectId);
-});
-ipcMain.handle("app:add-material-dialog", async (_, projectId) => {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
+o.handle("db:get-projects", () => D());
+o.handle("db:get-project", (e, t) => P(t));
+o.handle("db:save-project", (e, t) => b(t));
+o.handle("db:delete-project", (e, t) => g(t));
+o.handle("db:get-materials", () => w());
+o.handle("db:get-project-materials", (e, t) => U(t));
+o.handle("app:add-material-dialog", async (e, t) => {
+  const { canceled: d, filePaths: r } = await L.showOpenDialog({
     properties: ["openFile", "multiSelections"]
   });
-  if (canceled || filePaths.length === 0) {
+  if (d || r.length === 0)
     return [];
-  }
-  const materials = [];
-  for (const filePath of filePaths) {
-    const stats = fs.statSync(filePath);
-    const name = path.basename(filePath);
-    const material = saveMaterial({
-      projectId,
-      name,
-      path: filePath,
-      size: stats.size
+  const i = [];
+  for (const E of r) {
+    const m = h.statSync(E), N = n.basename(E), I = u({
+      projectId: t,
+      name: N,
+      path: E,
+      size: m.size
     });
-    materials.push(material);
+    i.push(I);
   }
-  return materials;
+  return i;
 });
-ipcMain.handle("db:save-material", (_, material) => {
-  return saveMaterial(material);
+o.handle("db:save-material", (e, t) => u(t));
+o.handle("db:delete-material", (e, t) => C(t));
+o.handle("app:open-file-location", (e, t) => {
+  f.showItemInFolder(t);
 });
-ipcMain.handle("db:delete-material", (_, id) => {
-  return deleteMaterial(id);
+l.on("activate", () => {
+  c.getAllWindows().length === 0 && A();
 });
-ipcMain.handle("app:open-file-location", (_, filePath) => {
-  shell.showItemInFolder(filePath);
-});
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
-app.whenReady().then(() => {
-  initDB();
-  createWindow();
+l.whenReady().then(() => {
+  _(), A();
 });
 export {
-  MAIN_DIST,
-  RENDERER_DIST,
-  VITE_DEV_SERVER_URL
+  W as MAIN_DIST,
+  R as RENDERER_DIST,
+  p as VITE_DEV_SERVER_URL
 };
