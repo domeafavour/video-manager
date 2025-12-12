@@ -96,7 +96,7 @@ function RouteComponent() {
   };
 
   const handlePreview = (path: string) => {
-    setPreviewImage(`file://${path}`);
+    setPreviewImage(path);
   };
 
   const isImage = (path: string) => {
@@ -277,7 +277,7 @@ function RouteComponent() {
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>
-                {isImage(material.path) && (
+                {(isImage(material.path) || isVideo(material.path)) && (
                   <ContextMenuItem onClick={() => handlePreview(material.path)}>
                     Preview
                   </ContextMenuItem>
@@ -312,8 +312,20 @@ function RouteComponent() {
             <DialogTitle>Preview</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
-            {previewImage && (
-              <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain" />
+            {previewImage && isImage(previewImage) && (
+              <img
+                src={`file://${previewImage}`}
+                alt="Preview"
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
+            {previewImage && isVideo(previewImage) && (
+              <video
+                src={`file://${previewImage}`}
+                controls
+                autoPlay
+                className="max-w-full max-h-full object-contain"
+              />
             )}
           </div>
         </DialogContent>
