@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { ProjectEntity, MaterialEntity } from "@/typings";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -150,17 +150,6 @@ function RouteComponent() {
                     <div className="text-sm text-gray-500">
                       {formatBytes(material.size)}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteMaterial(material.id);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
                   </div>
                 </div>
               </ContextMenuTrigger>
