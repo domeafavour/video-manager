@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/db";
-import { ProjectEntity } from "@/typings";
+import { ProjectEntity, MaterialEntity } from "@/typings";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/projects/$id")({
   component: RouteComponent,
@@ -13,6 +14,7 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<ProjectEntity | null>(null);
+  const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [title, setTitle] = useState("");
 
   useEffect(() => {
@@ -23,7 +25,12 @@ function RouteComponent() {
         setTitle(data.title || "");
       }
     };
+    const loadMaterials = async () => {
+      const data = await db.getProjectMaterials(Number(id));
+      setMaterials(data);
+    };
     loadProject();
+    loadMaterials();
   }, [id]);
 
   const handleSave = async () => {
@@ -39,6 +46,30 @@ function RouteComponent() {
       navigate({ to: "/projects" });
     }
   };
+
+  const handleAddMaterial = async () => {
+    if (!project) return;
+    const newMaterials = await db.addMaterialDialog(project.id);
+    if (newMaterials.length > 0) {
+      setMaterials((prev) => [...newMaterials, ...prev]);
+    }
+  };
+
+  const handleDeleteMaterial = async (materialId: number) => {
+    if (confirm("Are you sure you want to delete this material?")) {
+      await db.deleteMaterial(materialId);
+      setMaterials((prev) => prev.filter((m) => m.id !== materialId));
+    }
+  };
+
+  function formatBytes(bytes: number, decimals = 2) {
+    if (!+bytes) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
 
   if (!project) {
     return <div>Loading...</div>;
@@ -60,6 +91,53 @@ function RouteComponent() {
           </Button>
         </div>
       </div>
+
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Materials</h2>
+          <Button onClick={handleAddMaterial} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Material
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          {materials.map((material) => (
+            <div
+              key={material.id}
+              className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex-1 min-w-0 mr-4">
+                <div className="font-medium truncate" title={material.name}>
+                  {material.name}
+                </div>
+                <div className="text-sm text-gray-500 truncate" title={material.path}>
+                  {material.path}
+                </div>
+              </div>
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="text-sm text-gray-500">
+                  {formatBytes(material.size)}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleDeleteMaterial(material.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+          {materials.length === 0 && (
+            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
+              No materials added yet. Click "Add Material" to get started.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+

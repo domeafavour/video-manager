@@ -91,6 +91,10 @@ export function getMaterials(): MaterialEntity[] {
   return db.prepare('SELECT * FROM materials ORDER BY updatedAt DESC').all() as MaterialEntity[]
 }
 
+export function getProjectMaterials(projectId: number): MaterialEntity[] {
+  return db.prepare('SELECT * FROM materials WHERE projectId = ? ORDER BY updatedAt DESC').all(projectId) as MaterialEntity[]
+}
+
 export function saveMaterial(material: Partial<MaterialEntity>): MaterialEntity {
   const now = Date.now()
   if (material.id) {
@@ -99,14 +103,18 @@ export function saveMaterial(material: Partial<MaterialEntity>): MaterialEntity 
       SET projectId = @projectId, alias = @alias, name = @name, size = @size, path = @path, updatedAt = @updatedAt
       WHERE id = @id
     `)
-    stmt.run({ ...material, updatedAt: now })
+    const params = { ...material, updatedAt: now } as Record<string, unknown>
+    if (params.alias === undefined) params.alias = null
+    stmt.run(params)
     return { ...material, updatedAt: now } as MaterialEntity
   } else {
     const stmt = db.prepare(`
       INSERT INTO materials (projectId, alias, name, size, path, createdAt, updatedAt)
       VALUES (@projectId, @alias, @name, @size, @path, @createdAt, @updatedAt)
     `)
-    const info = stmt.run({ ...material, createdAt: now, updatedAt: now })
+    const params = { ...material, createdAt: now, updatedAt: now } as Record<string, unknown>
+    if (params.alias === undefined) params.alias = null
+    const info = stmt.run(params)
     return { ...material, id: Number(info.lastInsertRowid), createdAt: now, updatedAt: now } as MaterialEntity
   }
 }

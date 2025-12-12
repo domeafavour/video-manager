@@ -1,6 +1,7 @@
-import { app, ipcMain, BrowserWindow } from "electron";
+import { app, ipcMain, dialog, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fs from "node:fs";
 import Database from "better-sqlite3";
 const DB_NAME = "database.sqlite";
 let db;
@@ -61,6 +62,9 @@ function deleteProject(id) {
 function getMaterials() {
   return db.prepare("SELECT * FROM materials ORDER BY updatedAt DESC").all();
 }
+function getProjectMaterials(projectId) {
+  return db.prepare("SELECT * FROM materials WHERE projectId = ? ORDER BY updatedAt DESC").all(projectId);
+}
 function saveMaterial(material) {
   const now = Date.now();
   if (material.id) {
@@ -69,14 +73,18 @@ function saveMaterial(material) {
       SET projectId = @projectId, alias = @alias, name = @name, size = @size, path = @path, updatedAt = @updatedAt
       WHERE id = @id
     `);
-    stmt.run({ ...material, updatedAt: now });
+    const params = { ...material, updatedAt: now };
+    if (params.alias === void 0) params.alias = null;
+    stmt.run(params);
     return { ...material, updatedAt: now };
   } else {
     const stmt = db.prepare(`
       INSERT INTO materials (projectId, alias, name, size, path, createdAt, updatedAt)
       VALUES (@projectId, @alias, @name, @size, @path, @createdAt, @updatedAt)
     `);
-    const info = stmt.run({ ...material, createdAt: now, updatedAt: now });
+    const params = { ...material, createdAt: now, updatedAt: now };
+    if (params.alias === void 0) params.alias = null;
+    const info = stmt.run(params);
     return { ...material, id: Number(info.lastInsertRowid), createdAt: now, updatedAt: now };
   }
 }
@@ -121,6 +129,30 @@ ipcMain.handle("db:delete-project", (_, id) => {
 });
 ipcMain.handle("db:get-materials", () => {
   return getMaterials();
+});
+ipcMain.handle("db:get-project-materials", (_, projectId) => {
+  return getProjectMaterials(projectId);
+});
+ipcMain.handle("app:add-material-dialog", async (_, projectId) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ["openFile", "multiSelections"]
+  });
+  if (canceled || filePaths.length === 0) {
+    return [];
+  }
+  const materials = [];
+  for (const filePath of filePaths) {
+    const stats = fs.statSync(filePath);
+    const name = path.basename(filePath);
+    const material = saveMaterial({
+      projectId,
+      name,
+      path: filePath,
+      size: stats.size
+    });
+    materials.push(material);
+  }
+  return materials;
 });
 ipcMain.handle("db:save-material", (_, material) => {
   return saveMaterial(material);

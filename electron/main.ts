@@ -1,8 +1,9 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 // import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { initDB, getProjects, getProject, saveProject, deleteProject, getMaterials, saveMaterial, deleteMaterial, ProjectEntity, MaterialEntity } from './db'
+import fs from 'node:fs'
+import { initDB, getProjects, getProject, saveProject, deleteProject, getMaterials, getProjectMaterials, saveMaterial, deleteMaterial, ProjectEntity, MaterialEntity } from './db'
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -66,6 +67,33 @@ ipcMain.handle('db:delete-project', (_, id: number) => {
 
 ipcMain.handle('db:get-materials', () => {
   return getMaterials()
+})
+
+ipcMain.handle('db:get-project-materials', (_, projectId: number) => {
+  return getProjectMaterials(projectId)
+})
+
+ipcMain.handle('app:add-material-dialog', async (_, projectId: number) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile', 'multiSelections'],
+  })
+  if (canceled || filePaths.length === 0) {
+    return []
+  }
+
+  const materials: MaterialEntity[] = []
+  for (const filePath of filePaths) {
+    const stats = fs.statSync(filePath)
+    const name = path.basename(filePath)
+    const material = saveMaterial({
+      projectId,
+      name,
+      path: filePath,
+      size: stats.size,
+    })
+    materials.push(material)
+  }
+  return materials
 })
 
 ipcMain.handle('db:save-material', (_, material: MaterialEntity) => {
