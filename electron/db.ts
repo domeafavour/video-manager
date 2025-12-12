@@ -58,6 +58,10 @@ export function getProjects(): ProjectEntity[] {
   return db.prepare('SELECT * FROM projects ORDER BY updatedAt DESC').all() as ProjectEntity[]
 }
 
+export function getProject(id: number): ProjectEntity | undefined {
+  return db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectEntity | undefined
+}
+
 export function saveProject(project: Partial<ProjectEntity>): ProjectEntity {
   const now = Date.now()
   if (project.id) {

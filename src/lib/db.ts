@@ -2,6 +2,7 @@ import { ProjectEntity, MaterialEntity } from '@/typings'
 
 export const db = {
   getProjects: () => window.ipcRenderer.invoke('db:get-projects') as Promise<ProjectEntity[]>,
+  getProject: (id: number) => window.ipcRenderer.invoke('db:get-project', id) as Promise<ProjectEntity | undefined>,
   saveProject: (project: Partial<ProjectEntity>) => window.ipcRenderer.invoke('db:save-project', project) as Promise<ProjectEntity>,
   deleteProject: (id: number) => window.ipcRenderer.invoke('db:delete-project', id) as Promise<number>,
   getMaterials: () => window.ipcRenderer.invoke('db:get-materials') as Promise<MaterialEntity[]>,

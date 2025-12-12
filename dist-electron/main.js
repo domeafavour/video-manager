@@ -32,6 +32,9 @@ function initDB() {
 function getProjects() {
   return db.prepare("SELECT * FROM projects ORDER BY updatedAt DESC").all();
 }
+function getProject(id) {
+  return db.prepare("SELECT * FROM projects WHERE id = ?").get(id);
+}
 function saveProject(project) {
   const now = Date.now();
   if (project.id) {
@@ -106,6 +109,9 @@ function createWindow() {
 }
 ipcMain.handle("db:get-projects", () => {
   return getProjects();
+});
+ipcMain.handle("db:get-project", (_, id) => {
+  return getProject(id);
 });
 ipcMain.handle("db:save-project", (_, project) => {
   return saveProject(project);

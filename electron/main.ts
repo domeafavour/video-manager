@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 // import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { initDB, getProjects, saveProject, deleteProject, getMaterials, saveMaterial, deleteMaterial, ProjectEntity, MaterialEntity } from './db'
+import { initDB, getProjects, getProject, saveProject, deleteProject, getMaterials, saveMaterial, deleteMaterial, ProjectEntity, MaterialEntity } from './db'
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -50,6 +50,10 @@ function createWindow() {
 
 ipcMain.handle('db:get-projects', () => {
   return getProjects()
+})
+
+ipcMain.handle('db:get-project', (_, id: number) => {
+  return getProject(id)
 })
 
 ipcMain.handle('db:save-project', (_, project: ProjectEntity) => {
