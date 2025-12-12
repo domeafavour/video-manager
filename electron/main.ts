@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 // import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { initDB, getProjects, saveProject, deleteProject, getMaterials, saveMaterial, deleteMaterial, ProjectEntity, MaterialEntity } from './db'
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -47,14 +48,28 @@ function createWindow() {
   }
 }
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-    win = null
-  }
+ipcMain.handle('db:get-projects', () => {
+  return getProjects()
+})
+
+ipcMain.handle('db:save-project', (_, project: ProjectEntity) => {
+  return saveProject(project)
+})
+
+ipcMain.handle('db:delete-project', (_, id: number) => {
+  return deleteProject(id)
+})
+
+ipcMain.handle('db:get-materials', () => {
+  return getMaterials()
+})
+
+ipcMain.handle('db:save-material', (_, material: MaterialEntity) => {
+  return saveMaterial(material)
+})
+
+ipcMain.handle('db:delete-material', (_, id: number) => {
+  return deleteMaterial(id)
 })
 
 app.on('activate', () => {
@@ -65,4 +80,7 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  initDB()
+  createWindow()
+})
