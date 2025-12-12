@@ -4,7 +4,18 @@ import { db } from "@/lib/db";
 import { ProjectEntity, MaterialEntity } from "@/typings";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import {
+  Plus,
+  File as FileIcon,
+  FileVideo,
+  FileAudio,
+  FileCode,
+  FileArchive,
+  FileText,
+  FileSpreadsheet,
+  FileImage,
+  FileJson,
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -92,6 +103,113 @@ function RouteComponent() {
     return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(path);
   };
 
+  const isVideo = (path: string) => {
+    return /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(path);
+  };
+
+  const MaterialThumbnail = ({ path }: { path: string }) => {
+    const [error, setError] = useState(false);
+
+    const getFileIcon = (path: string) => {
+      const ext = path.split(".").pop()?.toLowerCase();
+      switch (ext) {
+        case "mp3":
+        case "wav":
+        case "ogg":
+        case "flac":
+        case "m4a":
+          return FileAudio;
+        case "zip":
+        case "rar":
+        case "7z":
+        case "tar":
+        case "gz":
+          return FileArchive;
+        case "js":
+        case "ts":
+        case "tsx":
+        case "jsx":
+        case "html":
+        case "css":
+        case "py":
+        case "java":
+        case "c":
+        case "cpp":
+          return FileCode;
+        case "json":
+          return FileJson;
+        case "txt":
+        case "md":
+        case "doc":
+        case "docx":
+        case "pdf":
+          return FileText;
+        case "xls":
+        case "xlsx":
+        case "csv":
+          return FileSpreadsheet;
+        case "jpg":
+        case "jpeg":
+        case "png":
+        case "gif":
+        case "webp":
+        case "svg":
+        case "bmp":
+          return FileImage;
+        default:
+          return FileIcon;
+      }
+    };
+
+    if (isImage(path)) {
+      if (error) {
+        return (
+          <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border">
+            <FileImage className="w-6 h-6 text-gray-400" />
+          </div>
+        );
+      }
+      return (
+        <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border">
+          <img
+            src={`file://${path}`}
+            alt="thumbnail"
+            className="w-full h-full object-cover"
+            onError={() => setError(true)}
+          />
+        </div>
+      );
+    }
+
+    if (isVideo(path)) {
+      if (error) {
+        return (
+          <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border">
+            <FileVideo className="w-6 h-6 text-gray-400" />
+          </div>
+        );
+      }
+      return (
+        <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border relative">
+          <video
+            src={`file://${path}#t=0.1`}
+            className="w-full h-full object-cover"
+            preload="metadata"
+            onError={() => setError(true)}
+          />
+        </div>
+      );
+    }
+
+    const Icon = getFileIcon(path);
+
+    return (
+      <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border">
+        <Icon className="w-6 h-6 text-gray-400" />
+      </div>
+    );
+  };
+
   function formatBytes(bytes: number, decimals = 2) {
     if (!+bytes) return '0 Bytes'
     const k = 1024
@@ -138,12 +256,17 @@ function RouteComponent() {
                 <div
                   className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="flex-1 min-w-0 mr-4">
-                    <div className="font-medium truncate" title={material.name}>
-                      {material.name}
+                  <div className="flex items-center flex-1 min-w-0 mr-4">
+                    <div className="mr-4">
+                      <MaterialThumbnail path={material.path} />
                     </div>
-                    <div className="text-sm text-gray-500 truncate" title={material.path}>
-                      {material.path}
+                    <div className="min-w-0">
+                      <div className="font-medium truncate" title={material.name}>
+                        {material.name}
+                      </div>
+                      <div className="text-sm text-gray-500 truncate" title={material.path}>
+                        {material.path}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
