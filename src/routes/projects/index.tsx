@@ -1,28 +1,28 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Plus } from 'lucide-react'
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 
-export const Route = createFileRoute('/projects/')({
+export const Route = createFileRoute("/projects/")({
   component: RouteComponent,
-})
+});
 
 interface Project {
-  id: string
-  title: string
-  thumbnailCount: number
+  id: string;
+  title: string;
+  thumbnailCount: number;
 }
 
 const MOCK_PROJECTS: Project[] = [
   {
-    id: '1',
-    title: 'Summer Vacation',
+    id: "1",
+    title: "Summer Vacation",
     thumbnailCount: 6,
   },
   {
-    id: '2',
-    title: 'Product Demo',
+    id: "2",
+    title: "Product Demo",
     thumbnailCount: 6,
   },
-]
+];
 
 function RouteComponent() {
   return (
@@ -47,7 +47,7 @@ function RouteComponent() {
                   />
                 ))}
               </div>
-              
+
               {/* Title */}
               <div className="font-bold text-lg truncate">{project.title}</div>
             </div>
@@ -55,10 +55,13 @@ function RouteComponent() {
         ))}
 
         {/* Add New Project Card */}
-        <button className="group border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white aspect-square flex items-center justify-center cursor-pointer">
+        <Link
+          to="/projects/new"
+          className="group border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white aspect-square flex items-center justify-center cursor-pointer"
+        >
           <Plus className="w-12 h-12 text-blue-600 group-hover:scale-110 transition-transform" />
-        </button>
+        </Link>
       </div>
     </div>
-  )
+  );
 }
