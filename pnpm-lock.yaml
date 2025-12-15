@@ -40,6 +40,7 @@ specifiers:
   vite: ^5.1.6
   vite-plugin-electron: ^0.28.6
   vite-plugin-electron-renderer: ^0.14.5
+  zustand: ^5.0.9
 
 dependencies:
   '@radix-ui/react-context-menu': 2.2.16_7oy5bngghhoic3d6rsiyrvfoga
@@ -57,6 +58,7 @@ dependencies:
   react-dom: 18.3.1_react@18.3.1
   react-query-kit: 3.3.2_jeww2x54zh2tuvns5cf7m47w7i
   tailwind-merge: 3.4.0
+  zustand: 5.0.9_gvpw3nleobtzb6yriethvjsu44
 
 devDependencies:
   '@electron/rebuild': 4.0.2
@@ -5907,3 +5909,25 @@ packages:
   /zod/3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
     dev: true
+
+  /zustand/5.0.9_gvpw3nleobtzb6yriethvjsu44:
+    resolution: {integrity: sha512-ALBtUj0AfjJt3uNRQoL1tL2tMvj6Gp/6e39dnfT6uzpelGru8v1tPOGBzayOWbPJvujM8JojDk3E1LxeFisBNg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+    dependencies:
+      '@types/react': 18.3.27
+      react: 18.3.1
+    dev: false
