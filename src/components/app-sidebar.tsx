@@ -1,4 +1,4 @@
-import { GalleryVerticalEnd, Plus } from "lucide-react";
+import { GalleryVerticalEnd, Plus, X } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/sidebar";
 import { useAddProject } from "@/features/project-list/hooks/useAddProject";
 import { projects } from "@/services/projects";
-import { useOpenedIds } from "@/stores/opened-projects";
-import { Link } from "@tanstack/react-router";
+import { deleteOpenedId, useOpenedIds } from "@/stores/opened-projects";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 
 function OpenedProjects() {
+  const navigate = useNavigate();
   const openedIds = useOpenedIds();
   const { data } = projects.list.useQuery();
 
@@ -35,16 +36,31 @@ function OpenedProjects() {
         }
         return (
           <SidebarMenuItem key={openedId}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="max-w-full">
               <Link
                 to="/projects/$id"
                 params={{ id: openedId }}
-                className="font-medium"
+                className="font-medium flex-1"
                 activeProps={{
                   className: "bg-gray-200",
                 }}
               >
-                {p.title}
+                <span className="truncate">{p.title}</span>
+                <Button
+                  size={"icon-sm"}
+                  variant={"ghost"}
+                  className="ms-auto"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    deleteOpenedId(openedId);
+                    navigate({
+                      to: "/projects",
+                    });
+                  }}
+                >
+                  <X />
+                </Button>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
