@@ -1,6 +1,7 @@
 import { projects } from "@/services/projects";
 import { AddResource } from "./components/AddResource";
 import { DeleteProject } from "./components/DeleteProject";
+import { DropFilesToAdd } from "./components/DropFilesToAdd";
 import { ProjectTitle } from "./components/ProjectTitle";
 import { Resources } from "./components/Resources";
 
@@ -18,7 +19,7 @@ export function ProjectDetail({ id }: Props) {
   }
 
   return (
-    <div className="p-8">
+    <DropFilesToAdd projectId={id}>
       <div className="flex items-center justify-between mb-8 gap-4">
         <ProjectTitle
           key={dataUpdatedAt}
@@ -38,6 +39,6 @@ export function ProjectDetail({ id }: Props) {
 
         <Resources projectId={id} />
       </div>
-    </div>
+    </DropFilesToAdd>
   );
 }
