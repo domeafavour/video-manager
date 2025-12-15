@@ -70,7 +70,7 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
   return (
     <div
       className={cn(
-        "p-8 h-full transition-colors relative rounded",
+        "h-full transition-colors relative rounded",
         isDragging && "bg-blue-50 outline-2 outline-dashed outline-blue-400",
         className
       )}
