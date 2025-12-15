@@ -15,6 +15,14 @@ export const resources = router("resources", {
       invalidatesTags: ["Resources"],
     },
   }),
+  create: router.mutation({
+    mutationFn: (variables: Partial<import("@/typings").MaterialEntity>) => {
+      return db.saveMaterial(variables);
+    },
+    meta: {
+      invalidatesTags: ["Resources"],
+    },
+  }),
   delete: router.mutation({
     meta: {
       invalidatesTags: ["Resources"],
