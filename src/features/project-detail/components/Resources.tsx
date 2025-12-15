@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { db } from "@/lib/db";
+import { dragState } from "@/lib/drag-state";
 import { resources } from "@/services/resources";
 import { isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
@@ -52,6 +53,7 @@ export function Resources({ projectId }: Props) {
                 draggable
                 onDragStart={(e) => {
                   e.preventDefault();
+                  dragState.isInternal = true;
                   db.startDrag(material.path);
                 }}
                 className="group relative flex flex-col border rounded-lg overflow-hidden bg-white hover:shadow-md transition-all cursor-move"
