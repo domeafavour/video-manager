@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  MutationCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -15,24 +19,22 @@ function findQueriesByTag<T extends string = string>(
 }
 
 export const queryClient = new QueryClient({
-  defaultOptions: {
-    mutations: {
-      onSuccess: (_data, _variables, _result, context) => {
-        const invalidatesTags = context.meta?.invalidatesTags;
-        if (!invalidatesTags || !Array.isArray(invalidatesTags)) {
-          return;
-        }
-        invalidatesTags.forEach((invalidatesTag) => {
-          findQueriesByTag(invalidatesTag, queryClient).forEach((q) => {
-            queryClient.invalidateQueries({
-              queryKey: q.queryKey,
-              type: "active",
-            });
+  mutationCache: new MutationCache({
+    onSuccess: (_data, _variables, _result, context) => {
+      const invalidatesTags = context.meta?.invalidatesTags;
+      if (!invalidatesTags || !Array.isArray(invalidatesTags)) {
+        return;
+      }
+      invalidatesTags.forEach((invalidatesTag) => {
+        findQueriesByTag(invalidatesTag, queryClient).forEach((q) => {
+          queryClient.invalidateQueries({
+            queryKey: q.queryKey,
+            type: "active",
           });
         });
-      },
+      });
     },
-  },
+  }),
 });
 
 // Create a new router instance
