@@ -44,8 +44,8 @@ export function Resources({ projectId }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4">
-        {materials?.map((material, index) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {materials?.map((material) => (
           <ContextMenu key={material.id}>
             <ContextMenuTrigger>
               <div
@@ -54,29 +54,20 @@ export function Resources({ projectId }: Props) {
                   e.preventDefault();
                   db.startDrag(material.path);
                 }}
-                className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-move ${
-                  index !== materials.length - 1 ? "border-b" : ""
-                }`}
+                className="group relative flex flex-col border rounded-lg overflow-hidden bg-white hover:shadow-md transition-all cursor-move"
               >
-                <div className="flex items-center flex-1 min-w-0 mr-4">
-                  <div className="mr-4">
-                    <ResourceThumbnail path={material.path} />
+                <ResourceThumbnail
+                  path={material.path}
+                  className="w-full h-32 rounded-none border-0 border-b bg-gray-50"
+                />
+                <div className="p-3">
+                  <div className="font-medium truncate text-sm" title={material.name}>
+                    {material.name}
                   </div>
-                  <div className="min-w-0">
-                    <div className="font-medium truncate" title={material.name}>
-                      {material.name}
+                  <div className="flex items-center justify-between mt-1">
+                    <div className="text-xs text-gray-500">
+                      {formatBytes(material.size)}
                     </div>
-                    <div
-                      className="text-sm text-gray-500 truncate"
-                      title={material.path}
-                    >
-                      {material.path}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="text-sm text-gray-500">
-                    {formatBytes(material.size)}
                   </div>
                 </div>
               </div>
@@ -104,8 +95,8 @@ export function Resources({ projectId }: Props) {
           </ContextMenu>
         ))}
         {materials?.length === 0 && (
-          <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
-            No materials added yet. Click "Add Material" to get started.
+          <div className="col-span-full text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
+            No materials added yet. Drag and drop files here to get started.
           </div>
         )}
       </div>

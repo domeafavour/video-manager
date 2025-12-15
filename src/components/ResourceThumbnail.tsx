@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { isImage, isVideo } from "@/utils/file-type";
 import {
   FileArchive,
@@ -14,11 +15,12 @@ import { useState } from "react";
 
 interface Props {
   path: string;
+  className?: string;
 }
 
 export type ResourceThumbnailProps = Props;
 
-export function ResourceThumbnail({ path }: Props) {
+export function ResourceThumbnail({ path, className }: Props) {
   const [error, setError] = useState(false);
 
   const getFileIcon = (path: string) => {
@@ -75,13 +77,13 @@ export function ResourceThumbnail({ path }: Props) {
   if (isImage(path)) {
     if (error) {
       return (
-        <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border">
+        <div className={cn("w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border", className)}>
           <FileImage className="w-6 h-6 text-gray-400" />
         </div>
       );
     }
     return (
-      <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border">
+      <div className={cn("w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border", className)}>
         <img
           src={`file://${path}`}
           alt="thumbnail"
@@ -95,13 +97,13 @@ export function ResourceThumbnail({ path }: Props) {
   if (isVideo(path)) {
     if (error) {
       return (
-        <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border">
+        <div className={cn("w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border", className)}>
           <FileVideo className="w-6 h-6 text-gray-400" />
         </div>
       );
     }
     return (
-      <div className="w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border relative">
+      <div className={cn("w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border relative", className)}>
         <video
           src={`file://${path}#t=0.1`}
           className="w-full h-full object-cover"
@@ -115,7 +117,7 @@ export function ResourceThumbnail({ path }: Props) {
   const Icon = getFileIcon(path);
 
   return (
-    <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border">
+    <div className={cn("w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border", className)}>
       <Icon className="w-6 h-6 text-gray-400" />
     </div>
   );
