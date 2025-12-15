@@ -1,10 +1,12 @@
 import { projects } from "@/services/projects";
+import { deleteOpenedId } from "@/stores/opened-projects";
 import { useNavigate } from "@tanstack/react-router";
 
 export function useDeleteProject() {
   const navigate = useNavigate();
   const { mutate } = projects.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      deleteOpenedId(variables.id);
       navigate({ to: "/projects" });
     },
   });
