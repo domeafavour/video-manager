@@ -15,7 +15,6 @@ export function AddResource({ projectId }: Props) {
       onClick={() => {
         mutate({ projectId });
       }}
-      size="sm"
     >
       <Plus className="w-4 h-4 mr-2" />
       Add Resource

@@ -26,15 +26,15 @@ export function ProjectDetail({ id }: Props) {
           projectId={id}
           initialTitle={data.title}
         />
-        <div className="flex gap-2">
-          <DeleteProject projectId={id} />
-        </div>
       </div>
 
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Resource</h2>
-          <AddResource projectId={id} />
+          <div className="inline-flex flex-row items-center gap-2">
+            <AddResource projectId={id} />
+            <DeleteProject projectId={id} />
+          </div>
         </div>
 
         <Resources projectId={id} />
