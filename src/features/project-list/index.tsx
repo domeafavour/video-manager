@@ -22,9 +22,9 @@ export function ProjectList() {
             key={project.id}
             to="/projects/$id"
             params={{ id: project.id.toString() }}
-            className="group block border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
+            className="group block border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
           >
-            <ResponseGrid.Item className="aspect-square p-2 flex flex-col">
+            <ResponseGrid.Item className="aspect-square p-2 flex flex-col border-none">
               {/* Thumbnails Grid */}
               <div className="flex-1 grid grid-cols-3 grid-rows-2 mb-4 rounded-sm overflow-hidden">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -41,7 +41,7 @@ export function ProjectList() {
         {/* Add New Project Card */}
         <button
           onClick={handleAddProject}
-          className="group border-2 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white aspect-square flex items-center justify-center cursor-pointer"
+          className="group border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white aspect-square flex items-center justify-center cursor-pointer"
           disabled={isPending}
         >
           <Plus className="w-12 h-12 text-blue-600 group-hover:scale-110 transition-transform" />
