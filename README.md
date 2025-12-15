@@ -12,4 +12,4 @@ Manage resources for video processing and storage.
   - [x] `resources`
 - [x] drag to add resource to project
 - [x] resource list -> grid
-- [ ] opened projects
+- [x] opened projects
