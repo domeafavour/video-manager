@@ -1,25 +1,12 @@
 import { ResponseGrid } from "@/components/ui/responsive-grid";
 import { projects } from "@/services/projects";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { useAddProject } from "./hooks/useAddProject";
 
 export function ProjectList() {
-  const navigate = useNavigate();
   const { data } = projects.list.useQuery();
-  const { mutate, isPending } = projects.save.useMutation({
-    onSuccess: (d) => {
-      navigate({
-        to: "/projects/$id",
-        params: { id: d.id.toString() },
-      });
-    },
-  });
-
-  const handleAddProject = async () => {
-    mutate({
-      title: "New Project",
-    });
-  };
+  const [handleAddProject, isPending] = useAddProject();
 
   if (!data) {
     return null;
