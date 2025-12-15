@@ -2,6 +2,7 @@ import { ResponseGrid } from "@/components/ui/responsive-grid";
 import { projects } from "@/services/projects";
 import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { Thumbnails } from "./components/Thumbnails";
 import { useAddProject } from "./hooks/useAddProject";
 
 export function ProjectList() {
@@ -26,11 +27,7 @@ export function ProjectList() {
           >
             <ResponseGrid.Item className="aspect-square p-2 flex flex-col border-none">
               {/* Thumbnails Grid */}
-              <div className="flex-1 grid grid-cols-3 grid-rows-2 mb-4 rounded-sm overflow-hidden">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="bg-gray-100 border border-gray-200" />
-                ))}
-              </div>
+              <Thumbnails projectId={project.id} />
 
               {/* Title */}
               <div className="font-bold text-lg truncate">{project.title}</div>
