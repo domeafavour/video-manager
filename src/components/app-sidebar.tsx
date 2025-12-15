@@ -9,35 +9,48 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { projects } from "@/services/projects";
+import { useOpenedIds } from "@/stores/opened-projects";
 import { Link } from "@tanstack/react-router";
 
-const data = {
-  navMain: [
-    {
-      title: "Projects",
-      url: "/projects",
-    },
-    {
-      title: "Opened Projects",
-      url: "#",
-      items: [
-        {
-          title: "Project Alpha",
-          url: "/projects/alpha",
-        },
-        {
-          title: "Project Beta",
-          url: "/projects/beta",
-          isActive: true,
-        },
-      ],
-    },
-  ],
-};
+function OpenedProjects() {
+  const openedIds = useOpenedIds();
+  const { data } = projects.list.useQuery();
+
+  if (!data) {
+    return null;
+  }
+
+  const entities = Object.fromEntries(data.map((p) => [p.id, p]));
+
+  return (
+    <SidebarMenu className="gap-2">
+      {openedIds.map((openedId) => {
+        const p = entities[openedId];
+        if (!p) {
+          return null;
+        }
+        return (
+          <SidebarMenuItem key={openedId}>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/projects/$id"
+                params={{ id: openedId }}
+                className="font-medium"
+                activeProps={{
+                  className: "bg-gray-200",
+                }}
+              >
+                {p.title}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
+    </SidebarMenu>
+  );
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -61,28 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarMenu className="gap-2">
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <Link to={item.url} className="font-medium">
-                    {item.title}
-                  </Link>
-                </SidebarMenuButton>
-                {item.items?.length ? (
-                  <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
-                          <Link to={item.url}>{item.title}</Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+          <OpenedProjects />
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
