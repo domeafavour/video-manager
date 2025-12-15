@@ -48,7 +48,7 @@ function OpenedProjects() {
                 <span className="truncate">{p.title}</span>
                 <Button
                   size={"icon-sm"}
-                  variant={"ghost"}
+                  variant={"link"}
                   className="ms-auto"
                   onClick={(e) => {
                     e.stopPropagation();
