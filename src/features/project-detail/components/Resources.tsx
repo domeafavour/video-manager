@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ResponseGrid } from "@/components/ui/responsive-grid";
 import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
 import { resources } from "@/services/resources";
@@ -45,25 +46,28 @@ export function Resources({ projectId }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <ResponseGrid>
         {materials?.map((material) => (
           <ContextMenu key={material.id}>
             <ContextMenuTrigger>
-              <div
+              <ResponseGrid.Item
                 draggable
                 onDragStart={(e) => {
                   e.preventDefault();
                   dragState.isInternal = true;
                   db.startDrag(material.path);
                 }}
-                className="group relative flex flex-col border rounded-lg overflow-hidden bg-white hover:shadow-md transition-all cursor-move"
+                className="group cursor-move"
               >
                 <ResourceThumbnail
                   path={material.path}
                   className="w-full h-32 rounded-none border-0 border-b bg-gray-50"
                 />
                 <div className="p-3">
-                  <div className="font-medium truncate text-sm" title={material.name}>
+                  <div
+                    className="font-medium truncate text-sm"
+                    title={material.name}
+                  >
                     {material.name}
                   </div>
                   <div className="flex items-center justify-between mt-1">
@@ -72,7 +76,7 @@ export function Resources({ projectId }: Props) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </ResponseGrid.Item>
             </ContextMenuTrigger>
             <ContextMenuContent>
               {(isImage(material.path) || isVideo(material.path)) && (
@@ -101,7 +105,7 @@ export function Resources({ projectId }: Props) {
             No materials added yet. Drag and drop files here to get started.
           </div>
         )}
-      </div>
+      </ResponseGrid>
 
       <Dialog
         open={!!previewPath}
