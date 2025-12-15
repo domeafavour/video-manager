@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
 import { MaterialEntity, ProjectEntity } from "@/typings";
 import { isImage, isVideo } from "@/utils/file-type";
+import { formatBytes } from "@/utils/formatBytes";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -89,25 +90,6 @@ function RouteComponent() {
   const handlePreview = (path: string) => {
     setPreviewImage(path);
   };
-
-  function formatBytes(bytes: number, decimals = 2) {
-    if (!+bytes) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = [
-      "Bytes",
-      "KiB",
-      "MiB",
-      "GiB",
-      "TiB",
-      "PiB",
-      "EiB",
-      "ZiB",
-      "YiB",
-    ];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-  }
 
   if (!project) {
     return <div>Loading...</div>;
