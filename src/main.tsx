@@ -14,7 +14,7 @@ function findQueriesByTag<T extends string = string>(
   });
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     mutations: {
       onSuccess: (_data, _variables, _result, context) => {
