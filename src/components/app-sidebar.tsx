@@ -1,4 +1,4 @@
-import { GalleryVerticalEnd } from "lucide-react";
+import { GalleryVerticalEnd, Plus } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -10,9 +10,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAddProject } from "@/features/project-list/hooks/useAddProject";
 import { projects } from "@/services/projects";
 import { useOpenedIds } from "@/stores/opened-projects";
 import { Link } from "@tanstack/react-router";
+import { Button } from "./ui/button";
 
 function OpenedProjects() {
   const openedIds = useOpenedIds();
@@ -53,6 +55,7 @@ function OpenedProjects() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [addProject] = useAddProject();
   return (
     <Sidebar variant="floating" {...props}>
       <SidebarHeader>
@@ -71,6 +74,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <Button
+          variant={"outline"}
+          onClick={() => {
+            addProject();
+          }}
+        >
+          <Plus />
+        </Button>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
