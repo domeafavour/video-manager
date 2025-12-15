@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ResponseGrid } from "@/components/ui/responsive-grid";
+import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
 import { resources } from "@/services/resources";
@@ -46,11 +46,11 @@ export function Resources({ projectId }: Props) {
 
   return (
     <>
-      <ResponseGrid>
+      <ResponsiveGrid>
         {materials?.map((material) => (
           <ContextMenu key={material.id}>
             <ContextMenuTrigger>
-              <ResponseGrid.Item
+              <ResponsiveGrid.Item
                 draggable
                 onDragStart={(e) => {
                   e.preventDefault();
@@ -76,7 +76,7 @@ export function Resources({ projectId }: Props) {
                     </div>
                   </div>
                 </div>
-              </ResponseGrid.Item>
+              </ResponsiveGrid.Item>
             </ContextMenuTrigger>
             <ContextMenuContent>
               {(isImage(material.path) || isVideo(material.path)) && (
@@ -105,7 +105,7 @@ export function Resources({ projectId }: Props) {
             No materials added yet. Drag and drop files here to get started.
           </div>
         )}
-      </ResponseGrid>
+      </ResponsiveGrid>
 
       <Dialog
         open={!!previewPath}

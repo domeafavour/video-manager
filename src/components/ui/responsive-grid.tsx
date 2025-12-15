@@ -35,6 +35,6 @@ const Item = React.forwardRef<
 });
 Item.displayName = "ResponsiveGrid.item";
 
-export const ResponseGrid = Object.assign(Root, {
+export const ResponsiveGrid = Object.assign(Root, {
   Item,
 });
