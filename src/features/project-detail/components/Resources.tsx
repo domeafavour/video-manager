@@ -61,7 +61,7 @@ export function Resources({ projectId }: Props) {
               >
                 <ResourceThumbnail
                   path={material.path}
-                  className="w-full h-32 rounded-none border-0 border-b bg-gray-50"
+                  className="w-full h-32 rounded-none border-0 border-b bg-gray-50 hover:scale-110 transition-transform duration-500"
                 />
                 <div className="p-3">
                   <div
