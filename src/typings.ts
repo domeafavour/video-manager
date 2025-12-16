@@ -6,6 +6,7 @@ export interface BaseEntity {
 
 export interface ProjectEntity extends BaseEntity {
   title?: string;
+  resourcesCount: number;
 }
 
 export interface MaterialEntity extends BaseEntity {
