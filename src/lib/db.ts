@@ -1,17 +1,129 @@
-import { ProjectEntity, MaterialEntity } from '@/typings'
+import { MaterialEntity, ProjectEntity } from "@/typings";
+import { DBSchema, IDBPDatabase, openDB } from "idb";
 
-export const db = {
-  getProjects: () => window.ipcRenderer.invoke('db:get-projects') as Promise<ProjectEntity[]>,
-  getProject: (id: number) => window.ipcRenderer.invoke('db:get-project', id) as Promise<ProjectEntity | undefined>,
-  saveProject: (project: Partial<ProjectEntity>) => window.ipcRenderer.invoke('db:save-project', project) as Promise<ProjectEntity>,
-  deleteProject: (id: number) => window.ipcRenderer.invoke('db:delete-project', id) as Promise<number>,
-  getMaterials: () => window.ipcRenderer.invoke('db:get-materials') as Promise<MaterialEntity[]>,
-  getProjectMaterials: (projectId: number) => window.ipcRenderer.invoke('db:get-project-materials', projectId) as Promise<MaterialEntity[]>,
-  addMaterialDialog: (projectId: number) => window.ipcRenderer.invoke('app:add-material-dialog', projectId) as Promise<MaterialEntity[]>,
-  saveMaterial: (material: Partial<MaterialEntity>) => window.ipcRenderer.invoke('db:save-material', material) as Promise<MaterialEntity>,
-  deleteMaterial: (id: number) => window.ipcRenderer.invoke('db:delete-material', id) as Promise<number>,
-  openFileLocation: (path: string) => window.ipcRenderer.invoke('app:open-file-location', path) as Promise<void>,
-  startDrag: (path: string) => window.ipcRenderer.send('app:start-drag', path),
+interface VideoManagerDB extends DBSchema {
+  projects: {
+    key: number;
+    value: ProjectEntity;
+    indexes: { "by-updatedAt": number };
+  };
+  materials: {
+    key: number;
+    value: MaterialEntity;
+    indexes: { "by-projectId": number; "by-updatedAt": number };
+  };
 }
 
+const DB_NAME = "video-manager-db";
+const DB_VERSION = 1;
 
+let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
+
+function getDB() {
+  if (!dbPromise) {
+    dbPromise = openDB<VideoManagerDB>(DB_NAME, DB_VERSION, {
+      upgrade(db) {
+        const projectStore = db.createObjectStore("projects", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+        projectStore.createIndex("by-updatedAt", "updatedAt");
+
+        const materialStore = db.createObjectStore("materials", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+        materialStore.createIndex("by-projectId", "projectId");
+        materialStore.createIndex("by-updatedAt", "updatedAt");
+      },
+    });
+  }
+  return dbPromise;
+}
+
+export const db = {
+  getProjects: async () => {
+    const db = await getDB();
+    const projects = await db.getAllFromIndex("projects", "by-updatedAt");
+    return projects.reverse();
+  },
+  getProject: async (id: number) => {
+    const db = await getDB();
+    return db.get("projects", id);
+  },
+  saveProject: async (project: Partial<ProjectEntity>) => {
+    const db = await getDB();
+    const now = Date.now();
+    const data = { ...project, updatedAt: now } as ProjectEntity;
+    if (!data.id) {
+      data.createdAt = now;
+    }
+    const id = await db.put("projects", data);
+    return { ...data, id };
+  },
+  deleteProject: async (id: number) => {
+    const db = await getDB();
+    await db.delete("projects", id);
+    // Also delete related materials
+    const tx = db.transaction("materials", "readwrite");
+    const index = tx.store.index("by-projectId");
+    let cursor = await index.openCursor(IDBKeyRange.only(id));
+    while (cursor) {
+      await cursor.delete();
+      cursor = await cursor.continue();
+    }
+    await tx.done;
+    return id;
+  },
+  getMaterials: async () => {
+    const db = await getDB();
+    const materials = await db.getAllFromIndex("materials", "by-updatedAt");
+    return materials.reverse();
+  },
+  getProjectMaterials: async (projectId: number) => {
+    const db = await getDB();
+    const materials = await db.getAllFromIndex(
+      "materials",
+      "by-projectId",
+      projectId
+    );
+    return materials.sort((a, b) => b.updatedAt - a.updatedAt);
+  },
+  saveMaterial: async (material: Partial<MaterialEntity>) => {
+    const db = await getDB();
+    const now = Date.now();
+    const data = { ...material, updatedAt: now } as MaterialEntity;
+    if (!data.id) {
+      data.createdAt = now;
+    }
+    const id = await db.put("materials", data);
+    return { ...data, id };
+  },
+  deleteMaterial: async (id: number) => {
+    const db = await getDB();
+    await db.delete("materials", id);
+    return id;
+  },
+  addMaterialDialog: async (projectId: number) => {
+    // Call IPC to get file paths
+    const files = (await window.ipcRenderer.invoke(
+      "app:add-material-dialog"
+    )) as { name: string; path: string; size: number }[];
+    if (!files || files.length === 0) return [];
+
+    const savedMaterials: MaterialEntity[] = [];
+    for (const file of files) {
+      const material = await db.saveMaterial({
+        projectId,
+        name: file.name,
+        path: file.path,
+        size: file.size,
+      });
+      savedMaterials.push(material);
+    }
+    return savedMaterials;
+  },
+  openFileLocation: (path: string) =>
+    window.ipcRenderer.invoke("app:open-file-location", path) as Promise<void>,
+  startDrag: (path: string) => window.ipcRenderer.send("app:start-drag", path),
+};

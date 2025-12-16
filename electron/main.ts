@@ -3,7 +3,6 @@ import { app, BrowserWindow, ipcMain, dialog, shell, nativeImage } from 'electro
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs'
-import { initDB, getProjects, getProject, saveProject, deleteProject, getMaterials, getProjectMaterials, saveMaterial, deleteMaterial, ProjectEntity, MaterialEntity } from './db'
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -50,31 +49,7 @@ function createWindow() {
   }
 }
 
-ipcMain.handle('db:get-projects', () => {
-  return getProjects()
-})
-
-ipcMain.handle('db:get-project', (_, id: number) => {
-  return getProject(id)
-})
-
-ipcMain.handle('db:save-project', (_, project: ProjectEntity) => {
-  return saveProject(project)
-})
-
-ipcMain.handle('db:delete-project', (_, id: number) => {
-  return deleteProject(id)
-})
-
-ipcMain.handle('db:get-materials', () => {
-  return getMaterials()
-})
-
-ipcMain.handle('db:get-project-materials', (_, projectId: number) => {
-  return getProjectMaterials(projectId)
-})
-
-ipcMain.handle('app:add-material-dialog', async (_, projectId: number) => {
+ipcMain.handle('app:add-material-dialog', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openFile', 'multiSelections'],
   })
@@ -82,27 +57,17 @@ ipcMain.handle('app:add-material-dialog', async (_, projectId: number) => {
     return []
   }
 
-  const materials: MaterialEntity[] = []
+  const files = []
   for (const filePath of filePaths) {
     const stats = fs.statSync(filePath)
     const name = path.basename(filePath)
-    const material = saveMaterial({
-      projectId,
+    files.push({
       name,
       path: filePath,
       size: stats.size,
     })
-    materials.push(material)
   }
-  return materials
-})
-
-ipcMain.handle('db:save-material', (_, material: MaterialEntity) => {
-  return saveMaterial(material)
-})
-
-ipcMain.handle('db:delete-material', (_, id: number) => {
-  return deleteMaterial(id)
+  return files
 })
 
 ipcMain.handle('app:open-file-location', (_, filePath: string) => {
@@ -126,6 +91,5 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(() => {
-  initDB()
   createWindow()
 })
