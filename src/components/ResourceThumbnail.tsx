@@ -1,17 +1,8 @@
 import { cn } from "@/lib/utils";
 import { isImage, isVideo } from "@/utils/file-type";
-import {
-  FileArchive,
-  FileAudio,
-  FileCode,
-  File as FileIcon,
-  FileImage,
-  FileJson,
-  FileSpreadsheet,
-  FileText,
-  FileVideo,
-} from "lucide-react";
-import { useState } from "react";
+import { getFileIcon } from "@/utils/get-file-icon";
+import { FileImage, FileVideo } from "lucide-react";
+import { PropsWithChildren, useState } from "react";
 
 interface Props {
   path: string;
@@ -20,105 +11,70 @@ interface Props {
 
 export type ResourceThumbnailProps = Props;
 
+function IconShape({
+  className,
+  children,
+}: PropsWithChildren<{ className?: string }>) {
+  return (
+    <div
+      className={cn(
+        "w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border relative",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function ResourceThumbnail({ path, className }: Props) {
   const [error, setError] = useState(false);
-
-  const getFileIcon = (path: string) => {
-    const ext = path.split(".").pop()?.toLowerCase();
-    switch (ext) {
-      case "mp3":
-      case "wav":
-      case "ogg":
-      case "flac":
-      case "m4a":
-        return FileAudio;
-      case "zip":
-      case "rar":
-      case "7z":
-      case "tar":
-      case "gz":
-        return FileArchive;
-      case "js":
-      case "ts":
-      case "tsx":
-      case "jsx":
-      case "html":
-      case "css":
-      case "py":
-      case "java":
-      case "c":
-      case "cpp":
-        return FileCode;
-      case "json":
-        return FileJson;
-      case "txt":
-      case "md":
-      case "doc":
-      case "docx":
-      case "pdf":
-        return FileText;
-      case "xls":
-      case "xlsx":
-      case "csv":
-        return FileSpreadsheet;
-      case "jpg":
-      case "jpeg":
-      case "png":
-      case "gif":
-      case "webp":
-      case "svg":
-      case "bmp":
-        return FileImage;
-      default:
-        return FileIcon;
-    }
-  };
 
   if (isImage(path)) {
     if (error) {
       return (
-        <div className={cn("w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border", className)}>
+        <IconShape className={className}>
           <FileImage className="w-6 h-6 text-gray-400" />
-        </div>
+        </IconShape>
       );
     }
     return (
-      <div className={cn("w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border", className)}>
+      <IconShape className={className}>
         <img
           src={`file://${path}`}
           alt="thumbnail"
           className="w-full h-full object-cover"
           onError={() => setError(true)}
         />
-      </div>
+      </IconShape>
     );
   }
 
   if (isVideo(path)) {
     if (error) {
       return (
-        <div className={cn("w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border", className)}>
+        <IconShape className={className}>
           <FileVideo className="w-6 h-6 text-gray-400" />
-        </div>
+        </IconShape>
       );
     }
     return (
-      <div className={cn("w-12 h-12 rounded overflow-hidden bg-gray-100 shrink-0 border relative", className)}>
+      <IconShape className={className}>
         <video
           src={`file://${path}#t=0.1`}
           className="w-full h-full object-cover"
           preload="metadata"
           onError={() => setError(true)}
         />
-      </div>
+      </IconShape>
     );
   }
 
   const Icon = getFileIcon(path);
 
   return (
-    <div className={cn("w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border", className)}>
+    <IconShape className={className}>
       <Icon className="w-6 h-6 text-gray-400" />
-    </div>
+    </IconShape>
   );
 }
