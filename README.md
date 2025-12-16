@@ -13,3 +13,9 @@ Manage resources for video processing and storage.
 - [x] drag to add resource to project
 - [x] resource list -> grid
 - [x] opened projects
+
+### 12.16
+
+- [ ] App name
+- [ ] SQLite -> IndexedDB
+- [ ] Release 0.1.0
