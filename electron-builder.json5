@@ -1,10 +1,10 @@
 // @see - https://www.electron.build/configuration/configuration
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "com.domeadev.videomanager",
   "npmRebuild": false,
   "asar": true,
-  "productName": "YourAppName",
+  "productName": "Video Manager",
   "directories": {
     "output": "release/${version}"
   },
