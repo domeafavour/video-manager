@@ -55,7 +55,7 @@ function OpenedProjects() {
                     e.preventDefault();
                     deleteOpenedId(openedId);
                     navigate({
-                      to: "/projects",
+                      to: "/",
                     });
                   }}
                 >
