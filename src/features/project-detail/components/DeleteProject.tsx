@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
 import { useDeleteProject } from "../hooks/useDeleteProject";
 
 interface Props {
@@ -12,7 +13,7 @@ export function DeleteProject({ projectId }: Props) {
 
   return (
     <Button variant="destructive" onClick={() => handleDelete(projectId)}>
-      Delete
+      <Trash />
     </Button>
   );
 }
