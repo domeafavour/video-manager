@@ -19,7 +19,8 @@ export const Route = createRootRoute({
           <Outlet />
         </div>
       </SidebarInset>
-      <TanStackRouterDevtools />
+      {/* hide devtools in production */}
+      {process.env.NODE_ENV !== "production" && <TanStackRouterDevtools />}
     </SidebarProvider>
   ),
 });
