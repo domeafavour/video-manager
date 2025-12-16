@@ -1,5 +1,26 @@
 import { MutationCache, QueryClient } from "@tanstack/react-query";
 
+interface MyQueryMeta extends Record<string, unknown> {
+  /**
+   * Tags associated with the query for invalidation purposes
+   */
+  tags?: string[];
+}
+
+interface MyMutationMeta extends Record<string, unknown> {
+  /**
+   * Tags to invalidate upon successful mutation
+   */
+  invalidatesTags?: string[];
+}
+
+declare module "@tanstack/react-query" {
+  interface Register {
+    queryMeta: MyQueryMeta;
+    mutationMeta: MyMutationMeta;
+  }
+}
+
 function findQueriesByTag<T extends string = string>(
   tag: T,
   queryClient: QueryClient
@@ -10,6 +31,18 @@ function findQueriesByTag<T extends string = string>(
 }
 
 export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      // do not retry on error
+      retry: false,
+    },
+    mutations: {
+      // do not retry on error
+      retry: false,
+    },
+  },
   mutationCache: new MutationCache({
     onSuccess: (_data, _variables, _result, context) => {
       const invalidatesTags = context.meta?.invalidatesTags;
