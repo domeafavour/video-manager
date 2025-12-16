@@ -8,6 +8,24 @@ export const resources = router("resources", {
     },
     fetcher: (id: number | string) => db.getProjectMaterials(Number(id)),
   }),
+  save: router.mutation({
+    meta: {
+      invalidatesTags: ["Resources"],
+    },
+    mutationFn: async (variables: {
+      files: File[];
+      projectId: number | string;
+    }) => {
+      for (const file of variables.files) {
+        await db.saveMaterial({
+          projectId: +variables.projectId,
+          name: file.name,
+          path: file.path,
+          size: file.size,
+        });
+      }
+    },
+  }),
   add: router.mutation({
     mutationFn: (variables: { projectId: number | string }) =>
       db.addMaterialDialog(+variables.projectId),
