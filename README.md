@@ -16,6 +16,7 @@ Manage resources for video processing and storage.
 
 ### 12.16
 
+- [ ] Use file input to add resources
 - [ ] App name
 - [ ] SQLite -> IndexedDB
 - [ ] Release 0.1.0
