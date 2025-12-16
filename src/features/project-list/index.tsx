@@ -25,12 +25,17 @@ export function ProjectList() {
             params={{ id: project.id.toString() }}
             className="group block border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
           >
-            <ResponsiveGrid.Item className="aspect-square p-2 flex flex-col border-none">
+            <ResponsiveGrid.Item className="p-2 flex flex-col border-none hover:shadow-none h-full">
               {/* Thumbnails Grid */}
               <Thumbnails projectId={project.id} />
 
               {/* Title */}
-              <div className="font-bold text-sm truncate">{project.title}</div>
+              <div className="flex flex-col justify-between mt-1">
+                <div className="font-bold text-sm truncate">{project.title}</div>
+                <div className="text-xs text-gray-500">
+                  {project.resourcesCount} resource(s)
+                </div>
+              </div>
             </ResponsiveGrid.Item>
           </Link>
         ))}

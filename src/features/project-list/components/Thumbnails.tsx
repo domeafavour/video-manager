@@ -15,7 +15,7 @@ export function Thumbnails({ projectId }: Props) {
   }
 
   return (
-    <div className="flex-1 grid grid-cols-3 grid-rows-2 mb-4 rounded-sm overflow-hidden">
+    <div className="flex-1 grid grid-cols-3 grid-rows-2 rounded-sm overflow-hidden">
       {Array.from({ length: 6 }).map((_, i) => {
         const item = data[i];
         return item ? (
