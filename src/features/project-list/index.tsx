@@ -30,7 +30,7 @@ export function ProjectList() {
               <Thumbnails projectId={project.id} />
 
               {/* Title */}
-              <div className="font-bold text-lg truncate">{project.title}</div>
+              <div className="font-bold text-sm truncate">{project.title}</div>
             </ResponsiveGrid.Item>
           </Link>
         ))}
