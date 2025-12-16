@@ -1,7 +1,7 @@
+import { dragState } from "@/lib/drag-state";
 import { cn } from "@/lib/utils";
 import { resources } from "@/services/resources";
 import { PropsWithChildren, useEffect, useState } from "react";
-import { dragState } from "@/lib/drag-state";
 
 interface Props extends PropsWithChildren {
   className?: string;
@@ -11,7 +11,7 @@ interface Props extends PropsWithChildren {
 export type DropFilesToAddProps = Props;
 
 export function DropFilesToAdd({ children, className, projectId }: Props) {
-  const { mutate: addResource } = resources.create.useMutation();
+  const { mutate: addResources } = resources.save.useMutation();
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
@@ -43,13 +43,9 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
     }
 
     const files = Array.from(e.dataTransfer.files);
-    files.forEach((file) => {
-      addResource({
-        projectId: Number(projectId),
-        name: file.name,
-        size: file.size,
-        path: file.path,
-      });
+    addResources({
+      files,
+      projectId,
     });
   };
 
