@@ -100,7 +100,7 @@ export function Resources({ projectId }: Props) {
             </ContextMenuContent>
           </ContextMenu>
         ))}
-        {materials?.length === 0 && (
+        {!materials?.length && (
           <div className="col-span-full text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
             No materials added yet. Drag and drop files here to get started.
           </div>
