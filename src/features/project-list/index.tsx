@@ -9,16 +9,12 @@ export function ProjectList() {
   const { data } = projects.list.useQuery();
   const [handleAddProject, isPending] = useAddProject();
 
-  if (!data) {
-    return null;
-  }
-
   return (
     <div className="">
       <h1 className="text-3xl font-bold text-blue-600 mb-8">Projects</h1>
 
       <ResponsiveGrid>
-        {data.map((project) => (
+        {data?.map((project) => (
           <Link
             key={project.id}
             to="/projects/$id"
@@ -31,7 +27,9 @@ export function ProjectList() {
 
               {/* Title */}
               <div className="flex flex-col justify-between mt-1">
-                <div className="font-bold text-sm truncate">{project.title}</div>
+                <div className="font-bold text-sm truncate">
+                  {project.title}
+                </div>
                 <div className="text-xs text-gray-500">
                   {project.resourcesCount} resource(s)
                 </div>
