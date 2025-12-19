@@ -5,36 +5,54 @@ interface VideoManagerDB extends DBSchema {
   projects: {
     key: number;
     value: ProjectEntity;
-    indexes: { "by-updatedAt": number };
+    indexes: { "updatedAt": number };
   };
   materials: {
     key: number;
     value: MaterialEntity;
-    indexes: { "by-projectId": number; "by-updatedAt": number };
+    indexes: { "projectId": number; "updatedAt": number };
   };
 }
 
 const DB_NAME = "video-manager-db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
 
 function getDB() {
   if (!dbPromise) {
     dbPromise = openDB<VideoManagerDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        const projectStore = db.createObjectStore("projects", {
-          keyPath: "id",
-          autoIncrement: true,
-        });
-        projectStore.createIndex("by-updatedAt", "updatedAt");
+      upgrade(db, _oldVersion, _newVersion, transaction) {
+        let projectStore;
+        if (!db.objectStoreNames.contains("projects")) {
+          projectStore = db.createObjectStore("projects", {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+        } else {
+          projectStore = transaction.objectStore("projects");
+        }
+        
+        if (!projectStore.indexNames.contains("updatedAt")) {
+          projectStore.createIndex("updatedAt", "updatedAt");
+        }
 
-        const materialStore = db.createObjectStore("materials", {
-          keyPath: "id",
-          autoIncrement: true,
-        });
-        materialStore.createIndex("by-projectId", "projectId");
-        materialStore.createIndex("by-updatedAt", "updatedAt");
+        let materialStore;
+        if (!db.objectStoreNames.contains("materials")) {
+          materialStore = db.createObjectStore("materials", {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+        } else {
+          materialStore = transaction.objectStore("materials");
+        }
+
+        if (!materialStore.indexNames.contains("projectId")) {
+          materialStore.createIndex("projectId", "projectId");
+        }
+        if (!materialStore.indexNames.contains("updatedAt")) {
+          materialStore.createIndex("updatedAt", "updatedAt");
+        }
       },
     });
   }
@@ -44,10 +62,10 @@ function getDB() {
 export const db = {
   getProjects: async () => {
     const db = await getDB();
-    const projects = await db.getAllFromIndex("projects", "by-updatedAt");
+    const projects = await db.getAllFromIndex("projects", "updatedAt");
     const projectsWithCount = await Promise.all(
       projects.map(async (p) => {
-        const count = await db.countFromIndex("materials", "by-projectId", p.id);
+        const count = await db.countFromIndex("materials", "projectId", p.id);
         return { ...p, resourcesCount: count };
       })
     );
@@ -72,7 +90,7 @@ export const db = {
     await db.delete("projects", id);
     // Also delete related materials
     const tx = db.transaction("materials", "readwrite");
-    const index = tx.store.index("by-projectId");
+    const index = tx.store.index("projectId");
     let cursor = await index.openCursor(IDBKeyRange.only(id));
     while (cursor) {
       await cursor.delete();
@@ -83,14 +101,14 @@ export const db = {
   },
   getMaterials: async () => {
     const db = await getDB();
-    const materials = await db.getAllFromIndex("materials", "by-updatedAt");
+    const materials = await db.getAllFromIndex("materials", "updatedAt");
     return materials.reverse();
   },
   getProjectMaterials: async (projectId: number) => {
     const db = await getDB();
     const materials = await db.getAllFromIndex(
       "materials",
-      "by-projectId",
+      "projectId",
       projectId
     );
     return materials.sort((a, b) => b.updatedAt - a.updatedAt);
