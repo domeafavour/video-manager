@@ -8,22 +8,31 @@ export function useCreateProjectWithFiles() {
   const { mutateAsync: addResources } = resources.save.useMutation();
 
   const handleCreateProjectWithFiles = async (files: File[]) => {
-    // Create new project
-    const newProject = await createProject({
-      title: "New Project",
-    });
+    try {
+      // Generate title from first file name or fallback to "New Project"
+      const firstFileName = files[0]?.name || "New Project";
+      const title = firstFileName.replace(/\.[^/.]+$/, ""); // Remove file extension
 
-    // Add resources to the project
-    await addResources({
-      files,
-      projectId: newProject.id,
-    });
+      // Create new project
+      const newProject = await createProject({
+        title,
+      });
 
-    // Navigate to the new project
-    navigate({
-      to: "/projects/$id",
-      params: { id: newProject.id.toString() },
-    });
+      // Add resources to the project
+      await addResources({
+        files,
+        projectId: newProject.id,
+      });
+
+      // Navigate to the new project
+      navigate({
+        to: "/projects/$id",
+        params: { id: newProject.id.toString() },
+      });
+    } catch (error) {
+      console.error("Failed to create project with files:", error);
+      // User will see the error through the mutation's error state
+    }
   };
 
   return handleCreateProjectWithFiles;
