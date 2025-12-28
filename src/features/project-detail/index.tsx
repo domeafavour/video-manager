@@ -3,6 +3,7 @@ import { AddResource } from "./components/AddResource";
 import { DeleteProject } from "./components/DeleteProject";
 import { DropFilesToAdd } from "./components/DropFilesToAdd";
 import { ProjectTitle } from "./components/ProjectTitle";
+import { ProjectDescription } from "./components/ProjectDescription";
 import { Resources } from "./components/Resources";
 
 interface Props {
@@ -25,6 +26,14 @@ export function ProjectDetail({ id }: Props) {
           key={dataUpdatedAt}
           projectId={id}
           initialTitle={data.title}
+        />
+      </div>
+
+      <div className="mb-8">
+        <ProjectDescription
+          key={dataUpdatedAt}
+          projectId={id}
+          initialDescription={data.description}
         />
       </div>
 
