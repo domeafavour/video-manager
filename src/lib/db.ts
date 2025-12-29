@@ -89,10 +89,21 @@ export const db = {
   saveProject: async (project: Partial<ProjectEntity>) => {
     const db = await getDB();
     const now = Date.now();
-    const data = { ...project, updatedAt: now } as ProjectEntity;
-    if (!data.id) {
-      data.createdAt = now;
+    
+    let data: ProjectEntity;
+    
+    if (project.id) {
+      // If id exists, fetch existing project and merge
+      const existingProject = await db.get("projects", project.id);
+      if (!existingProject) {
+        throw new Error('Project not found');
+      }
+      data = { ...existingProject, ...project, updatedAt: now } as ProjectEntity;
+    } else {
+      // If no id, create new project
+      data = { ...project, createdAt: now, updatedAt: now } as ProjectEntity;
     }
+    
     const id = await db.put("projects", data);
     return { ...data, id };
   },
