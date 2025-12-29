@@ -135,12 +135,15 @@ export function Resources({ projectId }: Props) {
                 Copy path
               </ContextMenuItem>
               <ContextMenuSeparator />
-              <ContextMenuItem onClick={() => handleSetStatus(material.id, 'used')}>
-                Set as Used
-              </ContextMenuItem>
-              <ContextMenuItem onClick={() => handleSetStatus(material.id, 'unused')}>
-                Set as Unused
-              </ContextMenuItem>
+              {material.status === 'unused' ? (
+                <ContextMenuItem onClick={() => handleSetStatus(material.id, 'used')}>
+                  Set as Used
+                </ContextMenuItem>
+              ) : (
+                <ContextMenuItem onClick={() => handleSetStatus(material.id, 'unused')}>
+                  Set as Unused
+                </ContextMenuItem>
+              )}
               <ContextMenuSeparator />
               <ContextMenuItem
                 className="text-red-600 focus:text-red-600"
