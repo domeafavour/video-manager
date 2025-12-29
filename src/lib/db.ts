@@ -22,7 +22,7 @@ let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
 function getDB() {
   if (!dbPromise) {
     dbPromise = openDB<VideoManagerDB>(DB_NAME, DB_VERSION, {
-      upgrade(db, _oldVersion, _newVersion, transaction) {
+      async upgrade(db, oldVersion, _newVersion, transaction) {
         let projectStore;
         if (!db.objectStoreNames.contains("projects")) {
           projectStore = db.createObjectStore("projects", {
@@ -52,6 +52,17 @@ function getDB() {
         }
         if (!materialStore.indexNames.contains("updatedAt")) {
           materialStore.createIndex("updatedAt", "updatedAt");
+        }
+
+        // Migration for version 3: Add status field to existing materials
+        if (oldVersion < 3) {
+          const materials = await materialStore.getAll();
+          for (const material of materials) {
+            if (!material.status) {
+              material.status = 'unused';
+              await materialStore.put(material);
+            }
+          }
         }
       },
     });
