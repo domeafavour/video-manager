@@ -124,6 +124,10 @@ export const db = {
     );
     return materials.sort((a, b) => b.updatedAt - a.updatedAt);
   },
+  getMaterial: async (id: number) => {
+    const db = await getDB();
+    return db.get("materials", id);
+  },
   saveMaterial: async (material: Partial<MaterialEntity>) => {
     const db = await getDB();
     const now = Date.now();

@@ -53,7 +53,11 @@ export const resources = router("resources", {
       invalidatesTags: ["Resources"],
     },
     mutationFn: async (variables: { id: number | string; status: 'used' | 'unused' }) => {
-      const material = await db.saveMaterial({ id: +variables.id, status: variables.status });
+      const existingMaterial = await db.getMaterial(+variables.id);
+      if (!existingMaterial) {
+        throw new Error('Material not found');
+      }
+      const material = await db.saveMaterial({ ...existingMaterial, status: variables.status });
       return material;
     },
   }),
