@@ -48,4 +48,13 @@ export const resources = router("resources", {
     mutationFn: (variables: { id: number | string }) =>
       db.deleteMaterial(+variables.id),
   }),
+  updateStatus: router.mutation({
+    meta: {
+      invalidatesTags: ["Resources"],
+    },
+    mutationFn: async (variables: { id: number | string; status: 'used' | 'unused' }) => {
+      const material = await db.saveMaterial({ id: +variables.id, status: variables.status });
+      return material;
+    },
+  }),
 });

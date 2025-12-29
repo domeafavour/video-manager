@@ -16,4 +16,5 @@ export interface MaterialEntity extends BaseEntity {
   name: string;
   size: number;
   path: string;
+  status: 'used' | 'unused';
 }

@@ -15,7 +15,7 @@ interface VideoManagerDB extends DBSchema {
 }
 
 const DB_NAME = "video-manager-db";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
 
@@ -119,6 +119,9 @@ export const db = {
     const data = { ...material, updatedAt: now } as MaterialEntity;
     if (!data.id) {
       data.createdAt = now;
+    }
+    if (!data.status) {
+      data.status = 'unused';
     }
     const id = await db.put("materials", data);
     return { ...data, id };
