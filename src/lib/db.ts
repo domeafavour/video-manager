@@ -15,14 +15,14 @@ interface VideoManagerDB extends DBSchema {
 }
 
 const DB_NAME = "video-manager-db";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
 
 function getDB() {
   if (!dbPromise) {
     dbPromise = openDB<VideoManagerDB>(DB_NAME, DB_VERSION, {
-      upgrade(db, _oldVersion, _newVersion, transaction) {
+      async upgrade(db, oldVersion, _newVersion, transaction) {
         let projectStore;
         if (!db.objectStoreNames.contains("projects")) {
           projectStore = db.createObjectStore("projects", {
@@ -52,6 +52,17 @@ function getDB() {
         }
         if (!materialStore.indexNames.contains("updatedAt")) {
           materialStore.createIndex("updatedAt", "updatedAt");
+        }
+
+        // Migration for version 3: Add status field to existing materials
+        if (oldVersion < 3) {
+          const materials = await materialStore.getAll();
+          for (const material of materials) {
+            if (!material.status) {
+              material.status = 'unused';
+              await materialStore.put(material);
+            }
+          }
         }
       },
     });
@@ -113,13 +124,31 @@ export const db = {
     );
     return materials.sort((a, b) => b.updatedAt - a.updatedAt);
   },
+  getMaterial: async (id: number): Promise<MaterialEntity | undefined> => {
+    const db = await getDB();
+    return db.get("materials", id);
+  },
   saveMaterial: async (material: Partial<MaterialEntity>) => {
     const db = await getDB();
     const now = Date.now();
-    const data = { ...material, updatedAt: now } as MaterialEntity;
-    if (!data.id) {
-      data.createdAt = now;
+    
+    let data: MaterialEntity;
+    
+    if (material.id) {
+      // If id exists, fetch existing material and merge
+      const existingMaterial = await db.get("materials", material.id);
+      if (!existingMaterial) {
+        throw new Error('Material not found');
+      }
+      data = { ...existingMaterial, ...material, updatedAt: now } as MaterialEntity;
+    } else {
+      // If no id, create new material
+      data = { ...material, createdAt: now, updatedAt: now } as MaterialEntity;
+      if (!data.status) {
+        data.status = 'unused';
+      }
     }
+    
     const id = await db.put("materials", data);
     return { ...data, id };
   },

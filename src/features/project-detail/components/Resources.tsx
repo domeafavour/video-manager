@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
+import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
 import { resources } from "@/services/resources";
@@ -20,6 +21,7 @@ import { isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
 import { useState } from "react";
 import { useDeleteResource } from "../hooks/useDeleteResource";
+import { cn } from "@/lib/utils";
 
 interface Props {
   projectId: string | number;
@@ -29,8 +31,10 @@ export type ResourcesProps = Props;
 
 export function Resources({ projectId }: Props) {
   const [previewPath, setPreviewPath] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'used' | 'unused'>('all');
   const { data: materials } = resources.list.useQuery({ variables: projectId });
   const [handleDeleteResource] = useDeleteResource();
+  const { mutate: updateStatus } = resources.updateStatus.useMutation();
 
   function handleOpenFolder(path: string) {
     db.openFileLocation(path);
@@ -44,10 +48,42 @@ export function Resources({ projectId }: Props) {
     setPreviewPath(path);
   };
 
+  const handleSetStatus = (id: number, status: 'used' | 'unused') => {
+    updateStatus({ id, status });
+  };
+
+  const filteredMaterials = materials?.filter((material) => {
+    if (statusFilter === 'all') return true;
+    return material.status === statusFilter;
+  });
+
   return (
     <>
+      <div className="flex items-center gap-2 mb-4">
+        <Button
+          variant={statusFilter === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setStatusFilter('all')}
+        >
+          All
+        </Button>
+        <Button
+          variant={statusFilter === 'used' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setStatusFilter('used')}
+        >
+          Used
+        </Button>
+        <Button
+          variant={statusFilter === 'unused' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setStatusFilter('unused')}
+        >
+          Unused
+        </Button>
+      </div>
       <ResponsiveGrid>
-        {materials?.map((material) => (
+        {filteredMaterials?.map((material) => (
           <ContextMenu key={material.id}>
             <ContextMenuTrigger>
               <ResponsiveGrid.Item
@@ -74,6 +110,14 @@ export function Resources({ projectId }: Props) {
                     <div className="text-xs text-gray-500">
                       {formatBytes(material.size)}
                     </div>
+                    <div className={cn(
+                      "text-xs px-2 py-0.5 rounded-full",
+                      material.status === 'used' 
+                        ? "bg-green-100 text-green-700" 
+                        : "bg-gray-100 text-gray-600"
+                    )}>
+                      {material.status}
+                    </div>
                   </div>
                 </div>
               </ResponsiveGrid.Item>
@@ -91,6 +135,16 @@ export function Resources({ projectId }: Props) {
                 Copy path
               </ContextMenuItem>
               <ContextMenuSeparator />
+              {material.status === 'unused' ? (
+                <ContextMenuItem onClick={() => handleSetStatus(material.id, 'used')}>
+                  Set as Used
+                </ContextMenuItem>
+              ) : (
+                <ContextMenuItem onClick={() => handleSetStatus(material.id, 'unused')}>
+                  Set as Unused
+                </ContextMenuItem>
+              )}
+              <ContextMenuSeparator />
               <ContextMenuItem
                 className="text-red-600 focus:text-red-600"
                 onClick={() => handleDeleteResource(material.id)}
@@ -100,9 +154,9 @@ export function Resources({ projectId }: Props) {
             </ContextMenuContent>
           </ContextMenu>
         ))}
-        {!materials?.length && (
+        {!filteredMaterials?.length && (
           <div className="col-span-full text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
-            No materials added yet. Drag and drop files here to get started.
+            {materials?.length ? 'No materials match the selected filter.' : 'No materials added yet. Drag and drop files here to get started.'}
           </div>
         )}
       </ResponsiveGrid>
