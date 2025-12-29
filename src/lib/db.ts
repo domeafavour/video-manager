@@ -131,13 +131,24 @@ export const db = {
   saveMaterial: async (material: Partial<MaterialEntity>) => {
     const db = await getDB();
     const now = Date.now();
-    const data = { ...material, updatedAt: now } as MaterialEntity;
-    if (!data.id) {
-      data.createdAt = now;
+    
+    let data: MaterialEntity;
+    
+    if (material.id) {
+      // If id exists, fetch existing material and merge
+      const existingMaterial = await db.get("materials", material.id);
+      if (!existingMaterial) {
+        throw new Error('Material not found');
+      }
+      data = { ...existingMaterial, ...material, updatedAt: now } as MaterialEntity;
+    } else {
+      // If no id, create new material
+      data = { ...material, createdAt: now, updatedAt: now } as MaterialEntity;
+      if (!data.status) {
+        data.status = 'unused';
+      }
     }
-    if (!data.status) {
-      data.status = 'unused';
-    }
+    
     const id = await db.put("materials", data);
     return { ...data, id };
   },
