@@ -57,4 +57,13 @@ export const resources = router("resources", {
       return material;
     },
   }),
+  updateTags: router.mutation({
+    meta: {
+      invalidatesTags: ["Resources"],
+    },
+    mutationFn: async (variables: { id: number | string; tags: string[] }) => {
+      const material = await db.saveMaterial({ id: +variables.id, tags: variables.tags });
+      return material;
+    },
+  }),
 });

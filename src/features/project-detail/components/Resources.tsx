@@ -1,4 +1,5 @@
 import { ResourceThumbnail } from "@/components/ResourceThumbnail";
+import { EditTagsDialog } from "./EditTagsDialog";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -31,10 +32,16 @@ export type ResourcesProps = Props;
 
 export function Resources({ projectId }: Props) {
   const [previewPath, setPreviewPath] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'used' | 'unused'>('all');
+  const [statusFilter, setStatusFilter] = useState<"all" | "used" | "unused">(
+    "all",
+  );
   const { data: materials } = resources.list.useQuery({ variables: projectId });
   const [handleDeleteResource] = useDeleteResource();
   const { mutate: updateStatus } = resources.updateStatus.useMutation();
+  const [editingTagsResource, setEditingTagsResource] = useState<{
+    id: number;
+    tags: string[];
+  } | null>(null);
 
   function handleOpenFolder(path: string) {
     db.openFileLocation(path);
@@ -48,12 +55,12 @@ export function Resources({ projectId }: Props) {
     setPreviewPath(path);
   };
 
-  const handleSetStatus = (id: number, status: 'used' | 'unused') => {
+  const handleSetStatus = (id: number, status: "used" | "unused") => {
     updateStatus({ id, status });
   };
 
   const filteredMaterials = materials?.filter((material) => {
-    if (statusFilter === 'all') return true;
+    if (statusFilter === "all") return true;
     return material.status === statusFilter;
   });
 
@@ -61,23 +68,23 @@ export function Resources({ projectId }: Props) {
     <>
       <div className="flex items-center gap-2 mb-4">
         <Button
-          variant={statusFilter === 'all' ? 'default' : 'outline'}
+          variant={statusFilter === "all" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter('all')}
+          onClick={() => setStatusFilter("all")}
         >
           All
         </Button>
         <Button
-          variant={statusFilter === 'used' ? 'default' : 'outline'}
+          variant={statusFilter === "used" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter('used')}
+          onClick={() => setStatusFilter("used")}
         >
           Used
         </Button>
         <Button
-          variant={statusFilter === 'unused' ? 'default' : 'outline'}
+          variant={statusFilter === "unused" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter('unused')}
+          onClick={() => setStatusFilter("unused")}
         >
           Unused
         </Button>
@@ -110,15 +117,29 @@ export function Resources({ projectId }: Props) {
                     <div className="text-xs text-gray-500">
                       {formatBytes(material.size)}
                     </div>
-                    <div className={cn(
-                      "text-xs px-2 py-0.5 rounded-full",
-                      material.status === 'used' 
-                        ? "bg-green-100 text-green-700" 
-                        : "bg-gray-100 text-gray-600"
-                    )}>
+                    <div
+                      className={cn(
+                        "text-xs px-2 py-0.5 rounded-full",
+                        material.status === "used"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600",
+                      )}
+                    >
                       {material.status}
                     </div>
                   </div>
+                  {material.tags && material.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {material.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </ResponsiveGrid.Item>
             </ContextMenuTrigger>
@@ -135,12 +156,27 @@ export function Resources({ projectId }: Props) {
                 Copy path
               </ContextMenuItem>
               <ContextMenuSeparator />
-              {material.status === 'unused' ? (
-                <ContextMenuItem onClick={() => handleSetStatus(material.id, 'used')}>
+              <ContextMenuItem
+                onClick={() =>
+                  setEditingTagsResource({
+                    id: material.id,
+                    tags: material.tags || [],
+                  })
+                }
+              >
+                Edit tags
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              {material.status === "unused" ? (
+                <ContextMenuItem
+                  onClick={() => handleSetStatus(material.id, "used")}
+                >
                   Set as Used
                 </ContextMenuItem>
               ) : (
-                <ContextMenuItem onClick={() => handleSetStatus(material.id, 'unused')}>
+                <ContextMenuItem
+                  onClick={() => handleSetStatus(material.id, "unused")}
+                >
                   Set as Unused
                 </ContextMenuItem>
               )}
@@ -156,11 +192,20 @@ export function Resources({ projectId }: Props) {
         ))}
         {!filteredMaterials?.length && (
           <div className="col-span-full text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
-            {materials?.length ? 'No materials match the selected filter.' : 'No materials added yet. Drag and drop files here to get started.'}
+            {materials?.length
+              ? "No materials match the selected filter."
+              : "No materials added yet. Drag and drop files here to get started."}
           </div>
         )}
       </ResponsiveGrid>
-
+      {editingTagsResource && (
+        <EditTagsDialog
+          open={!!editingTagsResource}
+          onOpenChange={(open) => !open && setEditingTagsResource(null)}
+          resourceId={editingTagsResource.id}
+          initialTags={editingTagsResource.tags}
+        />
+      )}
       <Dialog
         open={!!previewPath}
         onOpenChange={(open) => !open && setPreviewPath(null)}
