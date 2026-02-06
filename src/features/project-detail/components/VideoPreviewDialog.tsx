@@ -95,7 +95,6 @@ export function VideoPreviewDialog({
             ref={videoRef}
             src={`file://${resourcePath}`}
             controls
-            autoPlay
             className="max-w-full max-h-full object-contain"
           />
         </div>
