@@ -1,13 +1,18 @@
 import { create } from "zustand";
-import { combine } from "zustand/middleware";
+import { combine, persist } from "zustand/middleware";
 
 const useOpenedProjects = create(
-  combine({ ids: [] as string[] }, (set) => ({
-    setIds: (ids: string[] | ((prev: string[]) => string[])) =>
-      set((prev) => ({
-        ids: typeof ids === "function" ? ids(prev.ids) : ids,
-      })),
-  }))
+  persist(
+    combine({ ids: [] as string[] }, (set) => ({
+      setIds: (ids: string[] | ((prev: string[]) => string[])) =>
+        set((prev) => ({
+          ids: typeof ids === "function" ? ids(prev.ids) : ids,
+        })),
+    })),
+    {
+      name: "opened-projects-storage",
+    }
+  )
 );
 
 export function useOpenedIds() {
