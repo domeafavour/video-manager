@@ -1,5 +1,6 @@
 import { ResourceThumbnail } from "@/components/ResourceThumbnail";
 import { EditTagsDialog } from "./EditTagsDialog";
+import { VideoPreviewDialog } from "./VideoPreviewDialog";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -19,6 +20,7 @@ import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
 import { resources } from "@/services/resources";
 import { isImage, isVideo } from "@/utils/file-type";
+import { isTimeTag } from "@/utils/time-tag";
 import { formatBytes } from "@/utils/formatBytes";
 import { useState } from "react";
 import { useDeleteResource } from "../hooks/useDeleteResource";
@@ -32,6 +34,11 @@ export type ResourcesProps = Props;
 
 export function Resources({ projectId }: Props) {
   const [previewPath, setPreviewPath] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<{
+    id: number;
+    path: string;
+    tags: string[];
+  } | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "used" | "unused">(
     "all",
   );
@@ -51,8 +58,16 @@ export function Resources({ projectId }: Props) {
     navigator.clipboard.writeText(path);
   }
 
-  const handlePreview = (path: string) => {
-    setPreviewPath(path);
+  const handlePreview = (material: { id: number; path: string; tags?: string[] }) => {
+    if (isVideo(material.path)) {
+      setVideoPreview({
+        id: material.id,
+        path: material.path,
+        tags: material.tags || [],
+      });
+    } else {
+      setPreviewPath(material.path);
+    }
   };
 
   const handleSetStatus = (id: number, status: "used" | "unused") => {
@@ -130,14 +145,22 @@ export function Resources({ projectId }: Props) {
                   </div>
                   {material.tags && material.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {material.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {material.tags.map((tag) => {
+                        const isTime = isTimeTag(tag);
+                        return (
+                          <span
+                            key={tag}
+                            className={cn(
+                              "text-[10px] px-1.5 py-0.5 rounded border",
+                              isTime
+                                ? "bg-purple-50 text-purple-700 border-purple-200 font-mono"
+                                : "bg-blue-50 text-blue-600 border-blue-100"
+                            )}
+                          >
+                            {tag}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -145,7 +168,7 @@ export function Resources({ projectId }: Props) {
             </ContextMenuTrigger>
             <ContextMenuContent>
               {(isImage(material.path) || isVideo(material.path)) && (
-                <ContextMenuItem onClick={() => handlePreview(material.path)}>
+                <ContextMenuItem onClick={() => handlePreview(material)}>
                   Preview
                 </ContextMenuItem>
               )}
@@ -206,6 +229,15 @@ export function Resources({ projectId }: Props) {
           initialTags={editingTagsResource.tags}
         />
       )}
+      {videoPreview && (
+        <VideoPreviewDialog
+          open={!!videoPreview}
+          onOpenChange={(open) => !open && setVideoPreview(null)}
+          resourceId={videoPreview.id}
+          resourcePath={videoPreview.path}
+          initialTags={videoPreview.tags}
+        />
+      )}
       <Dialog
         open={!!previewPath}
         onOpenChange={(open) => !open && setPreviewPath(null)}
@@ -219,14 +251,6 @@ export function Resources({ projectId }: Props) {
               <img
                 src={`file://${previewPath}`}
                 alt="Preview"
-                className="max-w-full max-h-full object-contain"
-              />
-            )}
-            {previewPath && isVideo(previewPath) && (
-              <video
-                src={`file://${previewPath}`}
-                controls
-                autoPlay
                 className="max-w-full max-h-full object-contain"
               />
             )}
