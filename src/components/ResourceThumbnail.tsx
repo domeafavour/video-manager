@@ -44,6 +44,8 @@ export function ResourceThumbnail({ path, className }: Props) {
           src={`file://${path}`}
           alt="thumbnail"
           className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
           onError={() => setError(true)}
         />
       </IconShape>
