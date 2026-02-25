@@ -80,6 +80,18 @@ ipcMain.handle('app:open-file-location', (_, filePath: string) => {
   shell.showItemInFolder(filePath)
 })
 
+ipcMain.handle('app:delete-native-file', async (_, filePath: string) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath)
+      return { success: true }
+    }
+    return { success: false, error: 'File not found' }
+  } catch (error) {
+    return { success: false, error: String(error) }
+  }
+})
+
 ipcMain.on('app:start-drag', (event, filePath: string) => {
   const icon = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')
   event.sender.startDrag({
