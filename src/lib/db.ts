@@ -168,6 +168,14 @@ export const db = {
     await db.delete("materials", id);
     return id;
   },
+  getMaterialsByPath: async (filePath: string): Promise<MaterialEntity[]> => {
+    const db = await getDB();
+    const allMaterials = await db.getAll("materials");
+    return allMaterials.filter((m) => m.path === filePath);
+  },
+  deleteNativeFile: async (filePath: string): Promise<{ success: boolean; error?: string }> => {
+    return window.ipcRenderer.invoke("app:delete-native-file", filePath) as Promise<{ success: boolean; error?: string }>;
+  },
   addMaterialDialog: async (projectId: number) => {
     // Call IPC to get file paths
     const files = (await window.ipcRenderer.invoke(
