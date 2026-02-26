@@ -52,8 +52,14 @@ export const resources = router("resources", {
     meta: {
       invalidatesTags: ["Resources"],
     },
-    mutationFn: async (variables: { id: number | string; status: 'used' | 'unused' }) => {
-      const material = await db.saveMaterial({ id: +variables.id, status: variables.status });
+    mutationFn: async (variables: {
+      id: number | string;
+      status: "used" | "unused";
+    }) => {
+      const material = await db.saveMaterial({
+        id: +variables.id,
+        status: variables.status,
+      });
       return material;
     },
   }),
@@ -62,8 +68,18 @@ export const resources = router("resources", {
       invalidatesTags: ["Resources"],
     },
     mutationFn: async (variables: { id: number | string; tags: string[] }) => {
-      const material = await db.saveMaterial({ id: +variables.id, tags: variables.tags });
+      const material = await db.saveMaterial({
+        id: +variables.id,
+        tags: variables.tags,
+      });
       return material;
     },
+  }),
+  getMaterialsByPath: router.query({
+    meta: {
+      tags: ["ResourcesByPath"],
+    },
+    fetcher: (variables: { path: string }) =>
+      db.getMaterialsByPath(variables.path),
   }),
 });
