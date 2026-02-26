@@ -11,8 +11,8 @@ const useOpenedProjects = create(
     })),
     {
       name: "opened-projects-storage",
-    }
-  )
+    },
+  ),
 );
 
 export function useOpenedIds() {
@@ -23,7 +23,7 @@ export function addOpenedId(idToAdd: string | number) {
   const stringId = idToAdd + "";
   useOpenedProjects.getState().setIds((prev) => {
     if (!prev.includes(stringId)) {
-      return [stringId, ...prev];
+      return [...prev, stringId];
     }
     return prev;
   });
