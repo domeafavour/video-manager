@@ -63,27 +63,29 @@ export function Resources({ projectId }: Props) {
   return (
     <>
       <div className="flex items-center gap-2 mb-4">
-        <Button
-          variant={statusFilter === "all" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setStatusFilter("all")}
-        >
-          All
-        </Button>
-        <Button
-          variant={statusFilter === "used" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setStatusFilter("used")}
-        >
-          Used
-        </Button>
-        <Button
-          variant={statusFilter === "unused" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setStatusFilter("unused")}
-        >
-          Unused
-        </Button>
+        <ButtonGroup>
+          <Button
+            variant={statusFilter === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("all")}
+          >
+            All
+          </Button>
+          <Button
+            variant={statusFilter === "used" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("used")}
+          >
+            Used
+          </Button>
+          <Button
+            variant={statusFilter === "unused" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("unused")}
+          >
+            Unused
+          </Button>
+        </ButtonGroup>
       </div>
       {/*  */}
       <ResponsiveGrid>
