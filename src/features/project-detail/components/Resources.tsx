@@ -1,5 +1,6 @@
 import { ResourceThumbnail } from "@/components/ResourceThumbnail";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -21,12 +22,11 @@ import { resources } from "@/services/resources";
 import { isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
 import { isTimeTag } from "@/utils/time-tag";
-import { Trash } from "lucide-react";
+import { Tags, Trash } from "lucide-react";
 import { useState } from "react";
 import { DeleteResource } from "./DeleteResource";
-import { EditTagsDialog } from "./EditTagsDialog";
+import { EditResourceTags } from "./EditResourceTags";
 import { VideoPreviewDialog } from "./VideoPreviewDialog";
-import { ButtonGroup } from "@/components/ui/button-group";
 
 interface Props {
   projectId: string | number;
@@ -46,10 +46,6 @@ export function Resources({ projectId }: Props) {
   );
   const { data: materials } = resources.list.useQuery({ variables: projectId });
   const { mutate: updateStatus } = resources.updateStatus.useMutation();
-  const [editingTagsResource, setEditingTagsResource] = useState<{
-    id: number;
-    tags: string[];
-  } | null>(null);
 
   function handleOpenFolder(path: string) {
     db.openFileLocation(path);
@@ -123,6 +119,14 @@ export function Resources({ projectId }: Props) {
                 className="group cursor-move relative"
               >
                 <ButtonGroup className="absolute top-1 right-1 z-10">
+                  <EditResourceTags
+                    resourceId={material.id}
+                    tags={material.tags}
+                  >
+                    <Button variant="outline" size="icon">
+                      <Tags className="text-accent-foreground" />
+                    </Button>
+                  </EditResourceTags>
                   <DeleteResource
                     resourceId={material.id}
                     resourcePath={material.path}
@@ -194,17 +198,6 @@ export function Resources({ projectId }: Props) {
                 Copy path
               </ContextMenuItem>
               <ContextMenuSeparator />
-              <ContextMenuItem
-                onClick={() =>
-                  setEditingTagsResource({
-                    id: material.id,
-                    tags: material.tags || [],
-                  })
-                }
-              >
-                Edit tags
-              </ContextMenuItem>
-              <ContextMenuSeparator />
               {material.status === "unused" ? (
                 <ContextMenuItem
                   onClick={() => handleSetStatus(material.id, "used")}
@@ -229,14 +222,6 @@ export function Resources({ projectId }: Props) {
           </div>
         )}
       </ResponsiveGrid>
-      {editingTagsResource && (
-        <EditTagsDialog
-          open={!!editingTagsResource}
-          onOpenChange={(open) => !open && setEditingTagsResource(null)}
-          resourceId={editingTagsResource.id}
-          initialTags={editingTagsResource.tags}
-        />
-      )}
       {videoPreview && (
         <VideoPreviewDialog
           open={!!videoPreview}
