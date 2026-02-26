@@ -1,6 +1,5 @@
 import { ResourceThumbnail } from "@/components/ResourceThumbnail";
-import { EditTagsDialog } from "./EditTagsDialog";
-import { VideoPreviewDialog } from "./VideoPreviewDialog";
+import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -15,16 +14,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
-import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
+import { cn } from "@/lib/utils";
 import { resources } from "@/services/resources";
 import { isImage, isVideo } from "@/utils/file-type";
-import { isTimeTag } from "@/utils/time-tag";
 import { formatBytes } from "@/utils/formatBytes";
+import { isTimeTag } from "@/utils/time-tag";
 import { useState } from "react";
-import { useDeleteResource } from "../hooks/useDeleteResource";
-import { cn } from "@/lib/utils";
+import { DeleteResource } from "./DeleteResource";
+import { EditTagsDialog } from "./EditTagsDialog";
+import { VideoPreviewDialog } from "./VideoPreviewDialog";
 
 interface Props {
   projectId: string | number;
@@ -43,7 +43,6 @@ export function Resources({ projectId }: Props) {
     "all",
   );
   const { data: materials } = resources.list.useQuery({ variables: projectId });
-  const [handleDeleteResource] = useDeleteResource();
   const { mutate: updateStatus } = resources.updateStatus.useMutation();
   const [editingTagsResource, setEditingTagsResource] = useState<{
     id: number;
@@ -154,7 +153,7 @@ export function Resources({ projectId }: Props) {
                               "text-[10px] px-1.5 py-0.5 rounded border",
                               isTime
                                 ? "bg-purple-50 text-purple-700 border-purple-200 font-mono"
-                                : "bg-blue-50 text-blue-600 border-blue-100"
+                                : "bg-blue-50 text-blue-600 border-blue-100",
                             )}
                           >
                             {tag}
@@ -204,12 +203,11 @@ export function Resources({ projectId }: Props) {
                 </ContextMenuItem>
               )}
               <ContextMenuSeparator />
-              <ContextMenuItem
-                className="text-red-600 focus:text-red-600"
-                onClick={() => handleDeleteResource(material.id)}
-              >
-                Delete
-              </ContextMenuItem>
+              <DeleteResource resourceId={material.id}>
+                <ContextMenuItem className="text-red-600 focus:text-red-600">
+                  Delete
+                </ContextMenuItem>
+              </DeleteResource>
             </ContextMenuContent>
           </ContextMenu>
         ))}
