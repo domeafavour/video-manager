@@ -45,8 +45,17 @@ export const resources = router("resources", {
     meta: {
       invalidatesTags: ["Resources"],
     },
-    mutationFn: (variables: { id: number | string }) =>
-      db.deleteMaterial(+variables.id),
+    mutationFn: async (variables: {
+      id: number | string;
+      shouldDeleteNative: boolean;
+    }) => {
+      const resourceId = +variables.id;
+      const resource = await db.getMaterial(resourceId);
+      await db.deleteMaterial(resourceId);
+      if (variables.shouldDeleteNative) {
+        await db.deleteNativeFile(resource!.path);
+      }
+    },
   }),
   updateStatus: router.mutation({
     meta: {
