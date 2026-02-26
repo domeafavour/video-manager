@@ -21,10 +21,12 @@ import { resources } from "@/services/resources";
 import { isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
 import { isTimeTag } from "@/utils/time-tag";
+import { Trash } from "lucide-react";
 import { useState } from "react";
 import { DeleteResource } from "./DeleteResource";
 import { EditTagsDialog } from "./EditTagsDialog";
 import { VideoPreviewDialog } from "./VideoPreviewDialog";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 interface Props {
   projectId: string | number;
@@ -57,7 +59,11 @@ export function Resources({ projectId }: Props) {
     navigator.clipboard.writeText(path);
   }
 
-  const handlePreview = (material: { id: number; path: string; tags?: string[] }) => {
+  const handlePreview = (material: {
+    id: number;
+    path: string;
+    tags?: string[];
+  }) => {
     if (isVideo(material.path)) {
       setVideoPreview({
         id: material.id,
@@ -114,8 +120,18 @@ export function Resources({ projectId }: Props) {
                   dragState.isInternal = true;
                   db.startDrag(material.path);
                 }}
-                className="group cursor-move"
+                className="group cursor-move relative"
               >
+                <ButtonGroup className="absolute top-1 right-1 z-10">
+                  <DeleteResource
+                    resourceId={material.id}
+                    resourcePath={material.path}
+                  >
+                    <Button variant="outline" size="icon">
+                      <Trash className="text-destructive" />
+                    </Button>
+                  </DeleteResource>
+                </ButtonGroup>
                 <ResourceThumbnail
                   path={material.path}
                   className="w-full h-32 rounded-none border-0 border-b bg-gray-50 hover:scale-110 transition-transform duration-500"
@@ -202,12 +218,6 @@ export function Resources({ projectId }: Props) {
                   Set as Unused
                 </ContextMenuItem>
               )}
-              <ContextMenuSeparator />
-              <DeleteResource resourceId={material.id}>
-                <ContextMenuItem className="text-red-600 focus:text-red-600">
-                  Delete
-                </ContextMenuItem>
-              </DeleteResource>
             </ContextMenuContent>
           </ContextMenu>
         ))}
