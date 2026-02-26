@@ -8,12 +8,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
@@ -22,11 +16,11 @@ import { resources } from "@/services/resources";
 import { isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
 import { isTimeTag } from "@/utils/time-tag";
-import { Tags, Trash } from "lucide-react";
+import { EyeIcon, Tags, Trash } from "lucide-react";
 import { useState } from "react";
 import { DeleteResource } from "./DeleteResource";
 import { EditResourceTags } from "./EditResourceTags";
-import { VideoPreviewDialog } from "./VideoPreviewDialog";
+import { PreviewResource } from "./PreviewResource";
 
 interface Props {
   projectId: string | number;
@@ -35,12 +29,6 @@ interface Props {
 export type ResourcesProps = Props;
 
 export function Resources({ projectId }: Props) {
-  const [previewPath, setPreviewPath] = useState<string | null>(null);
-  const [videoPreview, setVideoPreview] = useState<{
-    id: number;
-    path: string;
-    tags: string[];
-  } | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "used" | "unused">(
     "all",
   );
@@ -54,22 +42,6 @@ export function Resources({ projectId }: Props) {
   function handleCopyPath(path: string) {
     navigator.clipboard.writeText(path);
   }
-
-  const handlePreview = (material: {
-    id: number;
-    path: string;
-    tags?: string[];
-  }) => {
-    if (isVideo(material.path)) {
-      setVideoPreview({
-        id: material.id,
-        path: material.path,
-        tags: material.tags || [],
-      });
-    } else {
-      setPreviewPath(material.path);
-    }
-  };
 
   const handleSetStatus = (id: number, status: "used" | "unused") => {
     updateStatus({ id, status });
@@ -119,6 +91,13 @@ export function Resources({ projectId }: Props) {
                 className="group cursor-move relative"
               >
                 <ButtonGroup className="absolute top-1 right-1 z-10">
+                  {(isImage(material.path) || isVideo(material.path)) && (
+                    <PreviewResource resource={material}>
+                      <Button variant="outline" size="icon">
+                        <EyeIcon className="text-primary" />
+                      </Button>
+                    </PreviewResource>
+                  )}
                   <EditResourceTags
                     resourceId={material.id}
                     tags={material.tags}
@@ -186,11 +165,6 @@ export function Resources({ projectId }: Props) {
               </ResponsiveGrid.Item>
             </ContextMenuTrigger>
             <ContextMenuContent>
-              {(isImage(material.path) || isVideo(material.path)) && (
-                <ContextMenuItem onClick={() => handlePreview(material)}>
-                  Preview
-                </ContextMenuItem>
-              )}
               <ContextMenuItem onClick={() => handleOpenFolder(material.path)}>
                 Open containing folder
               </ContextMenuItem>
@@ -222,34 +196,6 @@ export function Resources({ projectId }: Props) {
           </div>
         )}
       </ResponsiveGrid>
-      {videoPreview && (
-        <VideoPreviewDialog
-          open={!!videoPreview}
-          onOpenChange={(open) => !open && setVideoPreview(null)}
-          resourceId={videoPreview.id}
-          resourcePath={videoPreview.path}
-          initialTags={videoPreview.tags}
-        />
-      )}
-      <Dialog
-        open={!!previewPath}
-        onOpenChange={(open) => !open && setPreviewPath(null)}
-      >
-        <DialogContent className="max-w-4xl w-full h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Preview</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
-            {previewPath && isImage(previewPath) && (
-              <img
-                src={`file://${previewPath}`}
-                alt="Preview"
-                className="max-w-full max-h-full object-contain"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
