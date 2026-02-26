@@ -19,7 +19,7 @@ export function ProjectTitle({ projectId, initialTitle }: Props) {
       onBlur={() => {
         mutate({ id: +projectId, title });
       }}
-      className="text-3xl font-bold text-blue-600 h-auto py-2 px-4"
+      className="font-bold text-blue-600 h-auto py-2 px-4"
     />
   );
 }

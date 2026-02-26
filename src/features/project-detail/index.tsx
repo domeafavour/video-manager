@@ -39,7 +39,7 @@ export function ProjectDetail({ id }: Props) {
 
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Resource</h2>
+          <h2 className="text-xl font-semibold">Resources</h2>
           <div className="inline-flex flex-row items-center gap-2">
             <AddResource projectId={id} />
             <DeleteProject projectId={id} />
