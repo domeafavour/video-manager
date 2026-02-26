@@ -98,128 +98,160 @@ export function Resources({ projectId }: Props) {
               dragState.isInternal = true;
               db.startDrag(material.path);
             }}
-            className="group cursor-move relative"
+            className="group cursor-move relative shadow-sm hover:shadow-lg transition-all duration-300"
           >
-            <ButtonGroup className="absolute top-1 right-1 z-10">
-              {(isImage(material.path) || isVideo(material.path)) && (
-                <PreviewResource resource={material}>
-                  <Button variant="outline" size="icon">
-                    <EyeIcon className="text-primary" />
-                  </Button>
-                </PreviewResource>
-              )}
-              <EditResourceTags resourceId={material.id} tags={material.tags}>
-                <Button variant="outline" size="icon">
-                  <Tags className="text-accent-foreground" />
-                </Button>
-              </EditResourceTags>
-              <DeleteResource
-                resourceId={material.id}
-                resourcePath={material.path}
-              >
-                <Button variant="outline" size="icon">
-                  <Trash className="text-destructive" />
-                </Button>
-              </DeleteResource>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            {/* Thumbnail area with overlay */}
+            <div className="relative overflow-hidden">
+              <ResourceThumbnail
+                path={material.path}
+                className="w-full h-36 rounded-none border-0 bg-muted/50 group-hover:scale-105  transition-transform duration-500"
+              />
+              {/* Gradient overlay for better button visibility */}
+              <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-transparent " />
+              {/* Action buttons - appear on hover */}
+              <ButtonGroup className="absolute top-2 right-2 flex -translate-y-1 ">
+                {(isImage(material.path) || isVideo(material.path)) && (
+                  <PreviewResource resource={material}>
+                    <Button
+                      variant="secondary"
+                      size="icon-sm"
+                      className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
+                    >
+                      <EyeIcon className="size-3.5" />
+                    </Button>
+                  </PreviewResource>
+                )}
+                <EditResourceTags resourceId={material.id} tags={material.tags}>
                   <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="More Options"
+                    variant="secondary"
+                    size="icon-sm"
+                    className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
                   >
-                    <MoreHorizontalIcon />
+                    <Tags className="size-3.5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => {
-                      handleOpenFolder(material.path);
-                    }}
+                </EditResourceTags>
+                <DeleteResource
+                  resourceId={material.id}
+                  resourcePath={material.path}
+                >
+                  <Button
+                    variant="secondary"
+                    size="icon-sm"
+                    className="bg-white/90 backdrop-blur-sm hover:bg-white hover:text-destructive shadow-sm"
                   >
-                    <FolderIcon />
-                    Open containing folder
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      handleCopyPath(material.path);
-                    }}
-                  >
-                    <CopyIcon />
-                    Copy Path
-                  </DropdownMenuItem>
-                  {material.status === "used" ? (
-                    <DropdownMenuItem
-                      onClick={() => handleSetStatus(material.id, "unused")}
+                    <Trash className="size-3.5" />
+                  </Button>
+                </DeleteResource>
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="icon-sm"
+                      className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
+                      aria-label="More Options"
                     >
-                      <XIcon />
-                      Mark as Unused
-                    </DropdownMenuItem>
-                  ) : (
+                      <MoreHorizontalIcon className="size-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => handleSetStatus(material.id, "used")}
+                      onClick={() => {
+                        handleOpenFolder(material.path);
+                      }}
                     >
-                      <CheckIcon />
-                      Mark as Used
+                      <FolderIcon />
+                      Open containing folder
                     </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </ButtonGroup>
-            <ResourceThumbnail
-              path={material.path}
-              className="w-full h-32 rounded-none border-0 border-b bg-gray-50 hover:scale-110 transition-transform duration-500"
-            />
-            <div className="p-3">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handleCopyPath(material.path);
+                      }}
+                    >
+                      <CopyIcon />
+                      Copy Path
+                    </DropdownMenuItem>
+                    {material.status === "used" ? (
+                      <DropdownMenuItem
+                        onClick={() => handleSetStatus(material.id, "unused")}
+                      >
+                        <XIcon />
+                        Mark as Unused
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() => handleSetStatus(material.id, "used")}
+                      >
+                        <CheckIcon />
+                        Mark as Used
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </ButtonGroup>
+              {/* Status badge - positioned on thumbnail */}
               <div
-                className="font-medium truncate text-sm"
+                className={cn(
+                  "absolute bottom-2 left-2 text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm",
+                  material.status === "used"
+                    ? "bg-green-500/90 text-white"
+                    : "bg-white/90 text-muted-foreground",
+                )}
+              >
+                {material.status === "used" ? "Used" : "Unused"}
+              </div>
+            </div>
+            {/* Info section */}
+            <div className="p-3 space-y-2">
+              <div
+                className="font-medium truncate text-sm leading-tight"
                 title={material.name}
               >
                 {material.name}
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <div className="text-xs text-gray-500">
-                  {formatBytes(material.size)}
-                </div>
-                <div
-                  className={cn(
-                    "text-xs px-2 py-0.5 rounded-full",
-                    material.status === "used"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-600",
-                  )}
-                >
-                  {material.status}
-                </div>
+              <div className="text-xs text-muted-foreground">
+                {formatBytes(material.size)}
               </div>
               {material.tags && material.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {material.tags.map((tag) => {
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {material.tags.slice(0, 4).map((tag) => {
                     const isTime = isTimeTag(tag);
                     return (
                       <span
                         key={tag}
                         className={cn(
-                          "text-[10px] px-1.5 py-0.5 rounded border",
+                          "text-[10px] px-1.5 py-0.5 rounded-md font-medium",
                           isTime
-                            ? "bg-purple-50 text-purple-700 border-purple-200 font-mono"
-                            : "bg-blue-50 text-blue-600 border-blue-100",
+                            ? "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
                         )}
                       >
                         {tag}
                       </span>
                     );
                   })}
+                  {material.tags.length > 4 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">
+                      +{material.tags.length - 4}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
           </ResponsiveGrid.Item>
         ))}
         {!filteredMaterials?.length && (
-          <div className="col-span-full text-center py-12 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
-            {materials?.length
-              ? "No materials match the selected filter."
-              : "No materials added yet. Drag and drop files here to get started."}
+          <div className="col-span-full text-center py-16 text-muted-foreground bg-muted/30 rounded-xl border-2 border-dashed">
+            <div className="text-4xl mb-3">📁</div>
+            <div className="font-medium">
+              {materials?.length
+                ? "No materials match the selected filter"
+                : "No materials yet"}
+            </div>
+            <div className="text-sm mt-1">
+              {materials?.length
+                ? "Try selecting a different filter"
+                : "Drag and drop files here to get started"}
+            </div>
           </div>
         )}
       </ResponsiveGrid>
