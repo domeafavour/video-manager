@@ -9,13 +9,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { resources } from "@/services/resources";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   resourceId: number;
   initialTags: string[];
+  allProjectTags?: string[];
 }
 
 export function EditTagsDialog({
@@ -23,11 +24,16 @@ export function EditTagsDialog({
   onOpenChange,
   resourceId,
   initialTags,
+  allProjectTags = [],
 }: Props) {
   const [tags, setTags] = useState<string[]>(initialTags || []);
   const [inputValue, setInputValue] = useState("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const SUGGESTIONS_CLOSE_DELAY = 150;
 
   const { mutate: updateTags, isPending } = resources.updateTags.useMutation({
     onSuccess: () => {
@@ -41,14 +47,23 @@ export function EditTagsDialog({
       setInputValue("");
       setEditingIndex(null);
       setEditValue("");
+      setShowSuggestions(false);
     }
   }, [open, initialTags]);
 
-  const handleAddTag = () => {
-    const trimmed = inputValue.trim();
+  const suggestions = allProjectTags.filter(
+    (t) =>
+      t.toLowerCase().includes(inputValue.toLowerCase()) &&
+      !tags.includes(t) &&
+      inputValue.trim().length > 0,
+  );
+
+  const handleAddTag = (value?: string) => {
+    const trimmed = (value ?? inputValue).trim();
     if (trimmed && !tags.includes(trimmed)) {
       setTags([...tags, trimmed]);
       setInputValue("");
+      setShowSuggestions(false);
     }
   };
 
@@ -56,6 +71,8 @@ export function EditTagsDialog({
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddTag();
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
     }
   };
 
@@ -111,13 +128,34 @@ export function EditTagsDialog({
           <DialogTitle>Edit Tags</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div className="flex gap-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Add a tag..."
-            />
+          <div className="flex gap-2 relative">
+            <div className="relative flex-1">
+              <Input
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), SUGGESTIONS_CLOSE_DELAY)}
+                placeholder="Add a tag..."
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-md max-h-40 overflow-y-auto">
+                  {suggestions.map((suggestion) => (
+                    <li
+                      key={suggestion}
+                      className="px-3 py-1.5 text-sm cursor-pointer hover:bg-accent"
+                      onMouseDown={() => handleAddTag(suggestion)}
+                    >
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap items-start gap-2 min-h-[100px] border rounded-md p-2 bg-slate-50">
             {tags.length === 0 && (

@@ -5,6 +5,7 @@ import { EditTagsDialog } from "./EditTagsDialog";
 interface Props extends SlotProps {
   resourceId: number;
   tags?: string[];
+  allProjectTags?: string[];
 }
 
 export type EditResourceTagsProps = Props;
@@ -12,6 +13,7 @@ export type EditResourceTagsProps = Props;
 export function EditResourceTags({
   resourceId,
   tags,
+  allProjectTags,
   children,
   ...props
 }: Props) {
@@ -31,6 +33,7 @@ export function EditResourceTags({
         onOpenChange={toggleOpen}
         resourceId={resourceId}
         initialTags={tags ?? []}
+        allProjectTags={allProjectTags}
       />
     </>
   );
