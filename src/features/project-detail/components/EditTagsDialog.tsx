@@ -54,8 +54,7 @@ export function EditTagsDialog({
   const suggestions = allProjectTags.filter(
     (t) =>
       t.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !tags.includes(t) &&
-      inputValue.trim().length > 0,
+      !tags.includes(t),
   );
 
   const handleAddTag = (value?: string) => {
