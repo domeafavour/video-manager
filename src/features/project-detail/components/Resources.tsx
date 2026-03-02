@@ -40,6 +40,7 @@ export function Resources({ projectId }: Props) {
   const [statusFilter, setStatusFilter] = useState<"all" | "used" | "unused">(
     "all",
   );
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { data: materials } = resources.list.useQuery({ variables: projectId });
   const { mutate: updateStatus } = resources.updateStatus.useMutation();
 
@@ -55,14 +56,27 @@ export function Resources({ projectId }: Props) {
     updateStatus({ id, status });
   };
 
+  const allProjectTags = Array.from(
+    new Set(materials?.flatMap((m) => m.tags ?? []) ?? []),
+  ).sort();
+
+  const toggleTagFilter = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
+
   const filteredMaterials = materials?.filter((material) => {
-    if (statusFilter === "all") return true;
-    return material.status === statusFilter;
+    if (statusFilter !== "all" && material.status !== statusFilter) return false;
+    if (selectedTags.length > 0) {
+      return selectedTags.every((tag) => material.tags?.includes(tag));
+    }
+    return true;
   });
 
   return (
     <>
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         <ButtonGroup>
           <Button
             variant={statusFilter === "all" ? "default" : "outline"}
@@ -86,6 +100,32 @@ export function Resources({ projectId }: Props) {
             Unused
           </Button>
         </ButtonGroup>
+        {allProjectTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1">
+            {allProjectTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => toggleTagFilter(tag)}
+                className={cn(
+                  "text-xs px-2 py-1 rounded-full border transition-colors",
+                  selectedTags.includes(tag)
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50",
+                )}
+              >
+                {tag}
+              </button>
+            ))}
+            {selectedTags.length > 0 && (
+              <button
+                onClick={() => setSelectedTags([])}
+                className="text-xs px-2 py-1 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
       </div>
       {/*  */}
       <ResponsiveGrid>
@@ -121,7 +161,7 @@ export function Resources({ projectId }: Props) {
                     </Button>
                   </PreviewResource>
                 )}
-                <EditResourceTags resourceId={material.id} tags={material.tags}>
+                <EditResourceTags resourceId={material.id} tags={material.tags} allProjectTags={allProjectTags}>
                   <Button
                     variant="secondary"
                     size="icon-sm"
@@ -249,7 +289,7 @@ export function Resources({ projectId }: Props) {
             </div>
             <div className="text-sm mt-1">
               {materials?.length
-                ? "Try selecting a different filter"
+                ? "Try selecting a different filter or clearing tag filters"
                 : "Drag and drop files here to get started"}
             </div>
           </div>
