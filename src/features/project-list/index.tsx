@@ -30,7 +30,8 @@ export function ProjectList() {
     return data.filter(
       (project) =>
         project.title?.toLowerCase().includes(query) ||
-        project.description?.toLowerCase().includes(query),
+        project.description?.toLowerCase().includes(query) ||
+        project.tags?.some((tag) => tag.toLowerCase().includes(query)),
     );
   }, [data, debouncedQuery]);
 
@@ -89,7 +90,7 @@ export function ProjectList() {
                         />
                       </div>
                     )}
-                    <ProjectTags tags={project.tags} />
+                    <ProjectTags tags={project.tags} query={debouncedQuery} />
                     <div className="text-xs text-gray-500">
                       {project.resourcesCount} resource(s)
                     </div>
@@ -138,7 +139,7 @@ export function ProjectList() {
                     </div>
                   )}
 
-                  <ProjectTags tags={project.tags} />
+                  <ProjectTags tags={project.tags} query={debouncedQuery} />
                   <div className="text-xs text-gray-500">
                     {project.resourcesCount} resource(s)
                   </div>
