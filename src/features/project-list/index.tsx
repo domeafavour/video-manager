@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { DropZone } from "./components/DropZone";
 import { HighlightText } from "./components/HighlightText";
+import { ProjectTags } from "./components/ProjectTags";
 import { SearchInput } from "./components/SearchInput";
 import { Thumbnails } from "./components/Thumbnails";
 import { useAddProject } from "./hooks/useAddProject";
@@ -29,7 +30,7 @@ export function ProjectList() {
     return data.filter(
       (project) =>
         project.title?.toLowerCase().includes(query) ||
-        project.description?.toLowerCase().includes(query)
+        project.description?.toLowerCase().includes(query),
     );
   }, [data, debouncedQuery]);
 
@@ -76,13 +77,20 @@ export function ProjectList() {
                   {/* Title */}
                   <div className="flex flex-col justify-between mt-1">
                     <div className="font-bold text-sm truncate">
-                      <HighlightText text={project.title} query={debouncedQuery} />
+                      <HighlightText
+                        text={project.title}
+                        query={debouncedQuery}
+                      />
                     </div>
                     {project.description && (
                       <div className="text-xs text-gray-400 truncate">
-                        <HighlightText text={project.description} query={debouncedQuery} />
+                        <HighlightText
+                          text={project.description}
+                          query={debouncedQuery}
+                        />
                       </div>
                     )}
+                    <ProjectTags tags={project.tags} />
                     <div className="text-xs text-gray-500">
                       {project.resourcesCount} resource(s)
                     </div>
@@ -117,13 +125,21 @@ export function ProjectList() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-sm truncate">
-                    <HighlightText text={project.title} query={debouncedQuery} />
+                    <HighlightText
+                      text={project.title}
+                      query={debouncedQuery}
+                    />
                   </div>
                   {project.description && (
                     <div className="text-xs text-gray-400 truncate">
-                      <HighlightText text={project.description} query={debouncedQuery} />
+                      <HighlightText
+                        text={project.description}
+                        query={debouncedQuery}
+                      />
                     </div>
                   )}
+
+                  <ProjectTags tags={project.tags} />
                   <div className="text-xs text-gray-500">
                     {project.resourcesCount} resource(s)
                   </div>

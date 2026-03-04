@@ -76,8 +76,9 @@ export const db = {
     const projects = await db.getAllFromIndex("projects", "updatedAt");
     const projectsWithCount = await Promise.all(
       projects.map(async (p) => {
-        const count = await db.countFromIndex("materials", "projectId", p.id);
-        return { ...p, resourcesCount: count };
+        const materials = await db.getAllFromIndex("materials", "projectId", p.id);
+        const tags = [...new Set(materials.flatMap((m) => m.tags ?? []))];
+        return { ...p, resourcesCount: materials.length, tags };
       })
     );
     return projectsWithCount.reverse();
