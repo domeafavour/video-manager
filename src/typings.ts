@@ -8,6 +8,7 @@ export interface ProjectEntity extends BaseEntity {
   title?: string;
   description?: string;
   resourcesCount: number;
+  tags?: string[];
 }
 
 export interface MaterialEntity extends BaseEntity {

@@ -8,10 +8,13 @@ const useSettings = create(
     combine(
       {
         projectListType: "grid" as ProjectListType,
+        searchQuery: "",
       },
       (set) => ({
         setProjectListType: (type: ProjectListType) =>
           set({ projectListType: type }),
+        setSearchQuery: (query: string) =>
+          set({ searchQuery: query }),
       })
     ),
     {
@@ -31,4 +34,12 @@ export function setProjectListType(type: ProjectListType) {
 export function toggleProjectListType() {
   const current = useSettings.getState().projectListType;
   useSettings.getState().setProjectListType(current === "grid" ? "list" : "grid");
+}
+
+export function useSearchQuery() {
+  return useSettings((state) => state.searchQuery);
+}
+
+export function setSearchQuery(query: string) {
+  useSettings.getState().setSearchQuery(query);
 }
