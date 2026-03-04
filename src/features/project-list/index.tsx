@@ -1,9 +1,14 @@
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { projects } from "@/services/projects";
-import { toggleProjectListType, useProjectListType } from "@/stores/settings";
+import {
+  setSearchQuery,
+  toggleProjectListType,
+  useProjectListType,
+  useSearchQuery,
+} from "@/stores/settings";
 import { Link } from "@tanstack/react-router";
 import { Grid, List, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useDebounce } from "use-debounce";
 import { DropZone } from "./components/DropZone";
 import { HighlightText } from "./components/HighlightText";
@@ -20,7 +25,7 @@ export function ProjectList() {
   const addResourcesToProject = useAddResourcesToProject();
   const createProjectWithFiles = useCreateProjectWithFiles();
   const projectListType = useProjectListType();
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchQuery = useSearchQuery();
   const [debouncedQuery] = useDebounce(searchQuery, 300);
 
   const filteredData = useMemo(() => {
