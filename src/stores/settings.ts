@@ -9,12 +9,15 @@ const useSettings = create(
       {
         projectListType: "grid" as ProjectListType,
         searchQuery: "",
+        activeProjectId: null as string | null,
       },
       (set) => ({
         setProjectListType: (type: ProjectListType) =>
           set({ projectListType: type }),
         setSearchQuery: (query: string) =>
           set({ searchQuery: query }),
+        setActiveProjectId: (id: string | null) =>
+          set({ activeProjectId: id }),
       })
     ),
     {
@@ -42,4 +45,12 @@ export function useSearchQuery() {
 
 export function setSearchQuery(query: string) {
   useSettings.getState().setSearchQuery(query);
+}
+
+export function getActiveProjectId(): string | null {
+  return useSettings.getState().activeProjectId;
+}
+
+export function setActiveProjectId(id: string | null) {
+  useSettings.getState().setActiveProjectId(id);
 }

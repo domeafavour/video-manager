@@ -8,9 +8,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { queryClient } from "./queryClient";
+import { getActiveProjectId } from "./stores/settings";
 import { routeTree } from "./routeTree.gen";
 
-const history = createMemoryHistory();
+const activeProjectId = getActiveProjectId();
+const initialPath = activeProjectId ? `/projects/${activeProjectId}` : "/";
+const history = createMemoryHistory({ initialEntries: [initialPath] });
 // Create a new router instance
 const router = createRouter({ routeTree, history });
 
