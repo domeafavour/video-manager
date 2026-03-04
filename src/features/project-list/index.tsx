@@ -37,8 +37,7 @@ export function ProjectList() {
   return (
     <div className="">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-blue-600">Projects</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-row justify-end items-center gap-2">
           <SearchInput value={searchQuery} onChange={setSearchQuery} />
           <button
             onClick={toggleProjectListType}
