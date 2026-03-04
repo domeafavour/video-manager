@@ -3,7 +3,10 @@ import { projects } from "@/services/projects";
 import { toggleProjectListType, useProjectListType } from "@/stores/settings";
 import { Link } from "@tanstack/react-router";
 import { Grid, List, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { DropZone } from "./components/DropZone";
+import { SearchInput } from "./components/SearchInput";
 import { Thumbnails } from "./components/Thumbnails";
 import { useAddProject } from "./hooks/useAddProject";
 import { useAddResourcesToProject } from "./hooks/useAddResourcesToProject";
@@ -15,31 +18,47 @@ export function ProjectList() {
   const addResourcesToProject = useAddResourcesToProject();
   const createProjectWithFiles = useCreateProjectWithFiles();
   const projectListType = useProjectListType();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery] = useDebounce(searchQuery, 300);
+
+  const filteredData = useMemo(() => {
+    if (!data) return data;
+    if (!debouncedQuery.trim()) return data;
+    const query = debouncedQuery.toLowerCase().trim();
+    return data.filter(
+      (project) =>
+        project.title?.toLowerCase().includes(query) ||
+        project.description?.toLowerCase().includes(query)
+    );
+  }, [data, debouncedQuery]);
 
   return (
     <div className="">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-blue-600">Projects</h1>
-        <button
-          onClick={toggleProjectListType}
-          className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-          title={
-            projectListType === "grid"
-              ? "Switch to list view"
-              : "Switch to grid view"
-          }
-        >
-          {projectListType === "grid" ? (
-            <List className="w-5 h-5 text-gray-600" />
-          ) : (
-            <Grid className="w-5 h-5 text-gray-600" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <SearchInput value={searchQuery} onChange={setSearchQuery} />
+          <button
+            onClick={toggleProjectListType}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+            title={
+              projectListType === "grid"
+                ? "Switch to list view"
+                : "Switch to grid view"
+            }
+          >
+            {projectListType === "grid" ? (
+              <List className="w-5 h-5 text-gray-600" />
+            ) : (
+              <Grid className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+        </div>
       </div>
 
       {projectListType === "grid" ? (
         <ResponsiveGrid>
-          {data?.map((project) => (
+          {filteredData?.map((project) => (
             <DropZone
               key={project.id}
               onDrop={(files) => addResourcesToProject(project.id, files)}
@@ -80,7 +99,7 @@ export function ProjectList() {
         </ResponsiveGrid>
       ) : (
         <div className="flex flex-col gap-2">
-          {data?.map((project) => (
+          {filteredData?.map((project) => (
             <DropZone
               key={project.id}
               onDrop={(files) => addResourcesToProject(project.id, files)}
