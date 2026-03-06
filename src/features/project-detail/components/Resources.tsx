@@ -181,8 +181,8 @@ export function Resources({ projectId }: Props) {
         )}
       </div>
       {selectedResourceCount > 0 && (
-        <div className="mb-4 flex justify-end">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background/90 px-1 py-1 shadow-xs">
+        <div className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 z-50 pointer-events-none">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-background/95 px-1 py-1 shadow-lg backdrop-blur-sm pointer-events-auto">
             <button
               type="button"
               draggable
