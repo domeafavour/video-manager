@@ -32,19 +32,23 @@ import { PreviewResource } from "./PreviewResource";
 interface ResourceCardProps {
   material: MaterialEntity;
   isSelected: boolean;
+  isHighlighted: boolean;
   allProjectTags: string[];
   onToggleSelection: (resourceId: number) => void;
   onDragStart: (resourcePath: string, resourceId: number) => void;
   onDragEnd: () => void;
+  onHighlight: (resourceId: number) => void;
 }
 
 export function ResourceCard({
   material,
   isSelected,
+  isHighlighted,
   allProjectTags,
   onToggleSelection,
   onDragStart,
   onDragEnd,
+  onHighlight,
 }: ResourceCardProps) {
   const { mutate: updateStatus } = resources.updateStatus.useMutation();
 
@@ -64,12 +68,17 @@ export function ResourceCard({
     <ResponsiveGrid.Item
       key={material.id}
       draggable
+      onClickCapture={() => onHighlight(material.id)}
       onDragStart={(e) => {
         e.preventDefault();
         onDragStart(material.path, material.id);
       }}
       onDragEnd={onDragEnd}
-      className="group cursor-move relative shadow-sm hover:shadow-lg transition-all duration-300"
+      className={cn(
+        "group cursor-move relative shadow-sm hover:shadow-lg transition-all duration-300",
+        isHighlighted &&
+          "ring-2 ring-sky-500/80 ring-offset-2 ring-offset-background bg-sky-50/30",
+      )}
     >
       <button
         type="button"

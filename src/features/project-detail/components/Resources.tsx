@@ -21,6 +21,7 @@ export function Resources({ projectId }: Props) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedResourceIds, setSelectedResourceIds] = useState<number[]>([]);
+  const [highlightedResourceId, setHighlightedResourceId] = useState<number | null>(null);
   const { data: materials } = resources.list.useQuery({ variables: projectId });
 
   const allProjectTags = useMemo(
@@ -73,6 +74,10 @@ export function Resources({ projectId }: Props) {
 
   const clearResourceSelection = () => {
     setSelectedResourceIds([]);
+  };
+
+  const highlightResource = (resourceId: number) => {
+    setHighlightedResourceId(resourceId);
   };
 
   const handleResourceDragStart = (
@@ -172,10 +177,12 @@ export function Resources({ projectId }: Props) {
             key={material.id}
             material={material}
             isSelected={selectedResourceIdSet.has(material.id)}
+            isHighlighted={highlightedResourceId === material.id}
             allProjectTags={allProjectTags}
             onToggleSelection={toggleResourceSelection}
             onDragStart={handleResourceDragStart}
             onDragEnd={handleInternalDragEnd}
+            onHighlight={highlightResource}
           />
         ))}
         {!filteredMaterials?.length && (
