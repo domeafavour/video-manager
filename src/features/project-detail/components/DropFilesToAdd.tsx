@@ -17,6 +17,7 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
   useEffect(() => {
     const handleGlobalDragEnd = () => {
       dragState.isInternal = false;
+      setIsDragging(false);
     };
     const handleMouseMove = (e: MouseEvent) => {
       if (e.buttons === 0) {

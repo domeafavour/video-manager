@@ -20,6 +20,7 @@ import {
   CopyIcon,
   EyeIcon,
   FolderIcon,
+  GripVertical,
   MoreHorizontalIcon,
   Tags,
   Trash,
@@ -41,6 +42,7 @@ export function Resources({ projectId }: Props) {
     "all",
   );
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedResourceIds, setSelectedResourceIds] = useState<number[]>([]);
   const { data: materials } = resources.list.useQuery({ variables: projectId });
   const { mutate: updateStatus } = resources.updateStatus.useMutation();
 
@@ -67,12 +69,63 @@ export function Resources({ projectId }: Props) {
   };
 
   const filteredMaterials = materials?.filter((material) => {
-    if (statusFilter !== "all" && material.status !== statusFilter) return false;
+    if (statusFilter !== "all" && material.status !== statusFilter) {
+      return false;
+    }
     if (selectedTags.length > 0) {
       return selectedTags.every((tag) => material.tags?.includes(tag));
     }
     return true;
   });
+
+  const selectedResources =
+    materials?.filter((material) =>
+      selectedResourceIds.includes(material.id),
+    ) ?? [];
+
+  const selectedResourceCount = selectedResources.length;
+
+  const toggleResourceSelection = (resourceId: number) => {
+    setSelectedResourceIds((prev) =>
+      prev.includes(resourceId)
+        ? prev.filter((id) => id !== resourceId)
+        : [...prev, resourceId],
+    );
+  };
+
+  const clearResourceSelection = () => {
+    setSelectedResourceIds([]);
+  };
+
+  const handleResourceDragStart = (
+    resourcePath: string,
+    resourceId: number,
+  ) => {
+    const isDraggingFromSelection = selectedResourceIds.includes(resourceId);
+    const selectedPaths = selectedResources.map((resource) => resource.path);
+    const pathsToDrag =
+      isDraggingFromSelection && selectedPaths.length > 0
+        ? selectedPaths
+        : [resourcePath];
+
+    dragState.isInternal = true;
+    db.startDrag(pathsToDrag);
+  };
+
+  const handleSelectedResourcesDragStart = (
+    e: React.DragEvent<HTMLButtonElement>,
+  ) => {
+    e.preventDefault();
+    if (selectedResources.length === 0) {
+      return;
+    }
+    dragState.isInternal = true;
+    db.startDrag(selectedResources.map((resource) => resource.path));
+  };
+
+  const handleInternalDragEnd = () => {
+    dragState.isInternal = false;
+  };
 
   return (
     <>
@@ -127,7 +180,37 @@ export function Resources({ projectId }: Props) {
           </div>
         )}
       </div>
-      {/*  */}
+      {selectedResourceCount > 0 && (
+        <div className="mb-4 flex justify-end">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-background/90 px-1 py-1 shadow-xs">
+            <button
+              type="button"
+              draggable
+              onDragStart={handleSelectedResourcesDragStart}
+              onDragEnd={handleInternalDragEnd}
+              className={cn(
+                "inline-flex flex-row items-center gap-1",
+                "min-w-12 h-8 px-3 py-1 text-sm rounded-full border border-blue-500 bg-blue-50 text-blue-700 font-semibold cursor-grab active:cursor-grabbing",
+              )}
+              title="Drag selected resources"
+            >
+              <GripVertical className="size-4 text-muted-foreground" />
+              {selectedResourceCount} Resource
+              {selectedResourceCount > 1 ? "s" : ""}
+            </button>
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              onClick={clearResourceSelection}
+              title="Clear selected resources"
+              className="h-8 w-8 rounded-full"
+            >
+              <XIcon className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
       <ResponsiveGrid>
         {filteredMaterials?.map((material) => (
           <ResponsiveGrid.Item
@@ -135,11 +218,36 @@ export function Resources({ projectId }: Props) {
             draggable
             onDragStart={(e) => {
               e.preventDefault();
-              dragState.isInternal = true;
-              db.startDrag(material.path);
+              handleResourceDragStart(material.path, material.id);
             }}
+            onDragEnd={handleInternalDragEnd}
             className="group cursor-move relative shadow-sm hover:shadow-lg transition-all duration-300"
           >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleResourceSelection(material.id);
+              }}
+              className={cn(
+                "absolute top-2 left-2 z-20 size-5 rounded-sm border backdrop-blur-sm shadow-sm flex items-center justify-center transition-colors",
+                selectedResourceIds.includes(material.id)
+                  ? "bg-blue-500 border-blue-500 text-white"
+                  : "bg-white/85 border-white/80 text-transparent hover:bg-white",
+              )}
+              aria-label={
+                selectedResourceIds.includes(material.id)
+                  ? "Deselect resource"
+                  : "Select resource"
+              }
+              title={
+                selectedResourceIds.includes(material.id)
+                  ? "Deselect resource"
+                  : "Select resource"
+              }
+            >
+              <CheckIcon className="size-4" />
+            </button>
             {/* Thumbnail area with overlay */}
             <div className="relative overflow-hidden">
               <ResourceThumbnail
@@ -161,7 +269,11 @@ export function Resources({ projectId }: Props) {
                     </Button>
                   </PreviewResource>
                 )}
-                <EditResourceTags resourceId={material.id} tags={material.tags} allProjectTags={allProjectTags}>
+                <EditResourceTags
+                  resourceId={material.id}
+                  tags={material.tags}
+                  allProjectTags={allProjectTags}
+                >
                   <Button
                     variant="secondary"
                     size="icon-sm"

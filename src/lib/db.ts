@@ -198,5 +198,6 @@ export const db = {
   },
   openFileLocation: (path: string) =>
     window.ipcRenderer.invoke("app:open-file-location", path) as Promise<void>,
-  startDrag: (path: string) => window.ipcRenderer.send("app:start-drag", path),
+  startDrag: (paths: string | string[]) =>
+    window.ipcRenderer.send("app:start-drag", paths),
 };
