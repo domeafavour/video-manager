@@ -92,12 +92,19 @@ ipcMain.handle('app:delete-native-file', async (_, filePath: string) => {
   }
 })
 
-ipcMain.on('app:start-drag', (event, filePath: string) => {
+ipcMain.on('app:start-drag', (event, payload: string | string[]) => {
   const icon = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')
-  event.sender.startDrag({
-    file: filePath,
-    icon: icon,
-  })
+  const files = Array.isArray(payload) ? payload : [payload]
+  if (files.length === 0) {
+    return
+  }
+
+  const dragItem =
+    files.length === 1
+      ? { file: files[0], icon }
+      : ({ files, icon } as unknown as Parameters<Electron.WebContents['startDrag']>[0])
+
+  event.sender.startDrag(dragItem)
 })
 
 app.on('activate', () => {
