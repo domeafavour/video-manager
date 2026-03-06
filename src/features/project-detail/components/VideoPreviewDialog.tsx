@@ -11,6 +11,7 @@ import { isTimeTag, parseTimeFromTag, createTimeTag } from "@/utils/time-tag";
 import { X, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import ReactPlayer from "react-player";
 
 interface Props {
   open: boolean;
@@ -27,7 +28,7 @@ export function VideoPreviewDialog({
   resourcePath,
   initialTags,
 }: Props) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<HTMLVideoElement>(null);
   const [tags, setTags] = useState<string[]>(initialTags || []);
   const [tagInput, setTagInput] = useState("");
 
@@ -48,10 +49,10 @@ export function VideoPreviewDialog({
     const trimmed = tagInput.trim();
     if (!trimmed) return;
 
-    const video = videoRef.current;
-    if (!video) return;
+    const player = playerRef.current;
+    if (!player) return;
 
-    const currentTime = video.currentTime;
+    const currentTime = player.currentTime;
     const timeTag = createTimeTag(currentTime, trimmed);
 
     if (!tags.includes(timeTag)) {
@@ -72,8 +73,8 @@ export function VideoPreviewDialog({
     if (!isTimeTag(tag)) return;
 
     const time = parseTimeFromTag(tag);
-    if (time !== null && videoRef.current) {
-      videoRef.current.currentTime = time;
+    if (time !== null && playerRef.current) {
+      playerRef.current.currentTime = time;
     }
   };
 
@@ -91,11 +92,13 @@ export function VideoPreviewDialog({
           <DialogTitle>Video Preview</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
-          <video
-            ref={videoRef}
+          <ReactPlayer
+            ref={playerRef}
             src={`file://${resourcePath}`}
             controls
-            className="max-w-full max-h-full object-contain"
+            width="100%"
+            height="100%"
+            style={{ maxHeight: "100%" }}
           />
         </div>
         <div className="space-y-3 pt-3 border-t">
