@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@keyframes projectCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-card-animate {
+  opacity: 0;
+  animation: projectCardIn 0.35s ease forwards;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -43,6 +59,22 @@
 
 :root {
   --radius: 0.625rem;
+  --vm-shell-bg: linear-gradient(155deg, #111317 0%, #17191f 55%, #121317 100%);
+  --vm-shell-glow:
+    radial-gradient(120% 80% at 0% 0%, rgba(214, 174, 102, 0.08) 0%, rgba(214, 174, 102, 0) 55%),
+    radial-gradient(90% 70% at 100% 100%, rgba(214, 174, 102, 0.05) 0%, rgba(214, 174, 102, 0) 62%);
+  --vm-foreground: #ddd7cb;
+  --vm-title: #eee6d8;
+  --vm-muted: #8d8578;
+  --vm-muted-strong: #9d937f;
+  --vm-panel-bg: rgba(255, 255, 255, 0.03);
+  --vm-panel-border: rgba(214, 174, 102, 0.12);
+  --vm-input-bg: rgba(19, 21, 26, 0.82);
+  --vm-input-border: rgba(214, 174, 102, 0.14);
+  --vm-gold-text: #f1d6a0;
+  --vm-gold-soft-text: #d6b277;
+  --vm-gold-bg: rgba(214, 174, 102, 0.14);
+  --vm-gold-bg-strong: rgba(214, 174, 102, 0.22);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -118,3 +150,4 @@
     @apply bg-background text-foreground;
   }
 }
+
