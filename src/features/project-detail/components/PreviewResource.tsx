@@ -1,9 +1,8 @@
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
+import { VmDialogContent, VmTitle } from "@/components/ui/vm";
 import { MaterialEntity } from "@/typings";
 import { isImage, isVideo } from "@/utils/file-type";
 import { useDisclosure } from "@domeadev/react-disclosure";
@@ -40,18 +39,20 @@ export function PreviewResource({ resource, children, ...props }: Props) {
       ) : null}
       {isImage(resource.path) ? (
         <Dialog open={open} onOpenChange={toggleOpen}>
-          <DialogContent className="max-w-4xl w-full h-[80vh] flex flex-col">
+          <VmDialogContent className="flex h-[80vh] w-full max-w-4xl flex-col rounded-[28px]">
             <DialogHeader>
-              <DialogTitle>Preview</DialogTitle>
+              <VmTitle as="h2" className="text-[24px]">
+                Preview
+              </VmTitle>
             </DialogHeader>
-            <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
+            <div className="flex flex-1 items-center justify-center overflow-hidden rounded-3xl border border-[rgba(214,174,102,0.12)] bg-[rgba(0,0,0,0.18)]">
               <img
                 src={`file://${resource.path}`}
                 alt="Preview"
                 className="max-w-full max-h-full object-contain"
               />
             </div>
-          </DialogContent>
+          </VmDialogContent>
         </Dialog>
       ) : null}
     </>

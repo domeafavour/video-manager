@@ -1,11 +1,8 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { VmButton, VmChip, VmDialogContent, VmInput, VmTitle } from "@/components/ui/vm";
 import { resources } from "@/services/resources";
 import { isTimeTag, parseTimeFromTag, createTimeTag } from "@/utils/time-tag";
 import { X, Plus } from "lucide-react";
@@ -87,11 +84,13 @@ export function VideoPreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-full h-[85vh] flex flex-col">
+      <VmDialogContent className="flex h-[85vh] w-full max-w-4xl flex-col rounded-[28px]">
         <DialogHeader>
-          <DialogTitle>Video Preview</DialogTitle>
+          <VmTitle as="h2" className="text-[24px]">
+            Video Preview
+          </VmTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
+        <div className="flex flex-1 items-center justify-center overflow-hidden rounded-3xl border border-[rgba(214,174,102,0.12)] bg-[rgba(0,0,0,0.22)]">
           <ReactPlayer
             ref={playerRef}
             src={`file://${resourcePath}`}
@@ -101,32 +100,32 @@ export function VideoPreviewDialog({
             style={{ maxHeight: "100%" }}
           />
         </div>
-        <div className="space-y-3 pt-3 border-t">
+        <div className="space-y-3 border-t border-[rgba(214,174,102,0.12)] pt-4">
           <div className="flex gap-2">
-            <Input
+            <VmInput
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Add note at current time..."
               className="flex-1"
             />
-            <Button onClick={handleAddTimeTag} size="sm">
-              <Plus className="w-4 h-4 mr-1" />
+            <VmButton onClick={handleAddTimeTag} size="sm">
+              <Plus className="mr-1 h-4 w-4" />
               Add Tag
-            </Button>
+            </VmButton>
           </div>
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-md border">
+            <div className="flex max-h-24 flex-wrap gap-2 overflow-y-auto rounded-2xl border border-[rgba(214,174,102,0.12)] bg-[rgba(19,21,26,0.72)] p-3">
               {tags.map((tag) => {
                 const isTime = isTimeTag(tag);
                 return (
-                  <div
+                  <VmChip
                     key={tag}
                     className={cn(
-                      "flex items-center gap-1 px-2 py-1 rounded text-sm group border",
+                      "group flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors",
                       isTime
-                        ? "bg-purple-50 text-purple-700 border-purple-200 cursor-pointer hover:bg-purple-100"
-                        : "bg-blue-50 text-blue-600 border-blue-100"
+                        ? "cursor-pointer border-[rgba(196,181,253,0.18)] bg-[rgba(124,58,237,0.14)] text-[#d7c8ff] hover:bg-[rgba(124,58,237,0.2)]"
+                        : "border-[rgba(214,174,102,0.18)] bg-[rgba(214,174,102,0.1)] text-[#d6b277]",
                     )}
                     onClick={() => handleTagClick(tag)}
                   >
@@ -136,17 +135,17 @@ export function VideoPreviewDialog({
                         e.stopPropagation();
                         handleRemoveTag(tag);
                       }}
-                      className="text-gray-400 hover:text-red-500"
+                      className="text-[#9d937f] transition-colors hover:text-[#ffb3b3]"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="h-3 w-3" />
                     </button>
-                  </div>
+                  </VmChip>
                 );
               })}
             </div>
           )}
         </div>
-      </DialogContent>
+      </VmDialogContent>
     </Dialog>
   );
 }

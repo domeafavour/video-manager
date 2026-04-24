@@ -1,11 +1,11 @@
 import { useAddProject } from "@/features/project-list/hooks/useAddProject";
-import { cn } from "@/lib/utils";
 import { projects } from "@/services/projects";
 import { deleteOpenedId, useOpenedIds } from "@/stores/opened-projects";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Plus, Video, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { VmButton, VmIconBadge, VmNavChip, VmTitle } from "./ui/vm";
 
 export function AppTabs() {
   const navigate = useNavigate();
@@ -18,24 +18,24 @@ export function AppTabs() {
   const entities = data ? Object.fromEntries(data.map((p) => [p.id, p])) : {};
 
   return (
-    <div className="flex items-center bg-muted/50 border-b">
+    <div className="flex items-center border-b border-[rgba(214,174,102,0.12)] bg-[linear-gradient(180deg,rgba(17,19,23,0.96)_0%,rgba(20,22,27,0.92)_100%)] text-[#ddd7cb] backdrop-blur-md">
       {/* App logo/title - fixed */}
       <Link to="/" className="shrink-0">
-        <div className="flex items-center gap-2 px-3">
-          <div className="bg-primary text-primary-foreground flex aspect-square size-7 items-center justify-center rounded-md">
+        <div className="flex items-center gap-2 px-3 py-2.5">
+          <VmIconBadge className="size-7 rounded-md">
             <Video className="size-4" />
-          </div>
-          <span className="font-semibold text-sm hidden sm:inline">
+          </VmIconBadge>
+          <VmTitle as="span" className="hidden text-sm font-semibold sm:inline">
             Video Manager
-          </span>
+          </VmTitle>
         </div>
       </Link>
 
-      <div className="w-px h-6 bg-border mx-1 shrink-0" />
+      <div className="mx-1 h-6 w-px shrink-0 bg-[rgba(214,174,102,0.12)]" />
 
       {/* Scrollable tabs area */}
-      <ScrollArea className="flex-1 w-0 py-3">
-        <div className="flex flex-nowrap items-center gap-1 px-1">
+      <ScrollArea className="w-0 flex-1 py-2.5">
+        <div className="flex flex-nowrap items-center gap-1.5 px-1.5">
           {/* Opened project tabs */}
           {openedIds.map((openedId) => {
             const p = entities[openedId];
@@ -44,14 +44,10 @@ export function AppTabs() {
             const isActive = currentPath === `/projects/${openedId}`;
 
             return (
-              <div
+              <VmNavChip
                 key={openedId}
-                className={cn(
-                  "group inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-md text-sm font-medium transition-colors shrink-0 max-w-50",
-                  isActive
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50",
-                )}
+                active={isActive}
+                className="group max-w-50 shrink-0 px-3 py-1.5 text-sm font-medium"
               >
                 <Link
                   to="/projects/$id"
@@ -63,7 +59,7 @@ export function AppTabs() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="size-5 opacity-0 group-hover:opacity-100 hover:bg-muted ml-1 shrink-0"
+                  className="ml-1 size-5 shrink-0 rounded-full text-[#8d8578] opacity-0 transition-all hover:bg-[rgba(255,255,255,0.06)] hover:text-[#f1d6a0] group-hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -86,7 +82,7 @@ export function AppTabs() {
                 >
                   <X className="size-3" />
                 </Button>
-              </div>
+              </VmNavChip>
             );
           })}
         </div>
@@ -94,15 +90,15 @@ export function AppTabs() {
       </ScrollArea>
 
       {/* Add new project button */}
-      <Button
-        variant="ghost"
+      <VmButton
+        tone="muted"
         size="icon"
-        className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
+        className="mr-2 size-8 shrink-0 rounded-full border-transparent text-[#9d937f] hover:border-[rgba(214,174,102,0.14)]"
         onClick={() => addProject()}
         title="New project"
       >
         <Plus className="size-4" />
-      </Button>
+      </VmButton>
     </div>
   );
 }

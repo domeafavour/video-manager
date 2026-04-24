@@ -52,20 +52,20 @@ export const Thumbnails = memo(function Thumbnails({ projectId }: Props) {
   return (
     <div
       ref={containerRef}
-      className="flex-1 grid grid-cols-3 grid-rows-2 rounded-sm overflow-hidden"
+      className="grid aspect-3/2 w-full grid-cols-3 grid-rows-2 gap-px overflow-hidden rounded-sm bg-[rgba(214,174,102,0.14)]"
     >
       {SLOT_INDICES.map((index) => {
         const item = data?.[index];
         return item ? (
           <ResourceThumbnail
-            className="h-full w-full rounded-none"
+            className="h-full w-full rounded-none border-0 bg-[#d7d8dd]"
             path={item.path}
             key={item.id + "_" + index}
           />
         ) : (
           <div
             key={index}
-            className="w-full h-full bg-gray-100 border border-gray-200"
+            className="h-full w-full bg-[#d7d8dd]"
           />
         );
       })}

@@ -18,7 +18,7 @@ function IconShape({
   return (
     <div
       className={cn(
-        "w-12 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0 border relative",
+        "relative flex h-12 w-12 shrink-0 items-center justify-center rounded border border-[rgba(214,174,102,0.14)] bg-[#d7d8dd] text-[#7b7468]",
         className
       )}
     >
@@ -34,7 +34,7 @@ export function ResourceThumbnail({ path, className }: Props) {
     if (error) {
       return (
         <IconShape className={className}>
-          <FileImage className="w-6 h-6 text-gray-400" />
+          <FileImage className="h-6 w-6 text-[#8f887a]" />
         </IconShape>
       );
     }
@@ -56,7 +56,7 @@ export function ResourceThumbnail({ path, className }: Props) {
     if (error) {
       return (
         <IconShape className={className}>
-          <FileVideo className="w-6 h-6 text-gray-400" />
+          <FileVideo className="h-6 w-6 text-[#8f887a]" />
         </IconShape>
       );
     }
@@ -76,7 +76,7 @@ export function ResourceThumbnail({ path, className }: Props) {
 
   return (
     <IconShape className={className}>
-      <Icon className="w-6 h-6 text-gray-400" />
+      <Icon className="h-6 w-6 text-[#8f887a]" />
     </IconShape>
   );
 }

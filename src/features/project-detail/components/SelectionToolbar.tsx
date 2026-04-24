@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { VmButton } from "@/components/ui/vm";
 import { cn } from "@/lib/utils";
 import { GripVertical, XIcon } from "lucide-react";
 
@@ -20,33 +20,32 @@ export function SelectionToolbar({
   }
 
   return (
-    <div className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 z-50 pointer-events-none">
-      <div className="inline-flex items-center gap-2 rounded-full border bg-background/95 px-1 py-1 shadow-lg backdrop-blur-sm pointer-events-auto">
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
+      <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[rgba(214,174,102,0.18)] bg-[rgba(17,19,23,0.9)] px-1.5 py-1.5 shadow-[0_18px_40px_rgba(0,0,0,0.28)] backdrop-blur-md">
         <button
           type="button"
           draggable
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
           className={cn(
-            "inline-flex flex-row items-center gap-1",
-            "min-w-12 h-8 px-3 py-1 text-sm rounded-full border border-blue-500 bg-blue-50 text-blue-700 font-semibold cursor-grab active:cursor-grabbing",
+            "inline-flex h-9 min-w-12 cursor-grab flex-row items-center gap-1.5 rounded-full border border-[rgba(214,174,102,0.28)] bg-[rgba(214,174,102,0.16)] px-3.5 py-1 text-sm font-semibold text-[#f1d6a0] active:cursor-grabbing",
           )}
           title="Drag selected resources"
         >
-          <GripVertical className="size-4 text-muted-foreground" />
+          <GripVertical className="size-4 text-[#b39c79]" />
           {selectedResourceCount} Resource
           {selectedResourceCount > 1 ? "s" : ""}
         </button>
-        <Button
+        <VmButton
+          tone="muted"
           type="button"
           size="icon-sm"
-          variant="ghost"
           onClick={onClear}
           title="Clear selected resources"
-          className="h-8 w-8 rounded-full"
+          className="h-9 w-9 rounded-full border-transparent text-[#b39c79] hover:border-[rgba(214,174,102,0.14)] hover:text-[#f1d6a0]"
         >
           <XIcon className="size-4" />
-        </Button>
+        </VmButton>
       </div>
     </div>
   );

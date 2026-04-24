@@ -1,3 +1,4 @@
+import { VmEyebrow, VmTitle } from "@/components/ui/vm";
 import { dragState } from "@/lib/drag-state";
 import { cn } from "@/lib/utils";
 import { resources } from "@/services/resources";
@@ -67,8 +68,9 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
   return (
     <div
       className={cn(
-        "h-full transition-colors relative rounded",
-        isDragging && "bg-blue-50 outline-2 outline-dashed outline-blue-400",
+        "relative h-full rounded-[30px] transition-all duration-200",
+        isDragging &&
+          "bg-[rgba(214,174,102,0.05)] outline-2 outline-dashed outline-[rgba(214,174,102,0.45)] outline-offset-[-10px]",
         className
       )}
       onDrop={handleDrop}
@@ -76,9 +78,17 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
       onDragLeave={handleDragLeave}
     >
       {isDragging && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="text-2xl text-blue-600 font-semibold bg-white bg-opacity-75 p-4 rounded-lg">
-            Drop files to add
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center rounded-[30px] bg-[rgba(8,9,12,0.42)] backdrop-blur-[2px]">
+          <div className="flex flex-col items-center gap-2 rounded-3xl border border-[rgba(214,174,102,0.22)] bg-[rgba(17,19,23,0.92)] px-8 py-6 text-center shadow-[0_24px_50px_rgba(0,0,0,0.3)]">
+            <VmEyebrow className="text-[#8d8578]">
+              Add Resources
+            </VmEyebrow>
+            <VmTitle className="text-[28px] font-semibold leading-none text-[#f1d6a0]">
+              Drop files here
+            </VmTitle>
+            <div className="text-sm text-[#b8ae9c]">
+              They will be added to this project immediately.
+            </div>
           </div>
         </div>
       )}

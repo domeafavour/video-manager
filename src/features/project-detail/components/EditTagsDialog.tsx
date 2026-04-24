@@ -1,12 +1,16 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+  VmButton,
+  VmChip,
+  VmDialogContent,
+  VmEmptyState,
+  VmInput,
+  VmTitle,
+} from "@/components/ui/vm";
 import { resources } from "@/services/resources";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -122,14 +126,16 @@ export function EditTagsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <VmDialogContent className="rounded-[28px]">
         <DialogHeader>
-          <DialogTitle>Edit Tags</DialogTitle>
+          <VmTitle as="h2" className="text-[24px]">
+            Edit Tags
+          </VmTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex gap-2 relative">
             <div className="relative flex-1">
-              <Input
+              <VmInput
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => {
@@ -142,11 +148,11 @@ export function EditTagsDialog({
                 placeholder="Add a tag..."
               />
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-md max-h-40 overflow-y-auto">
+                <ul className="absolute z-10 mt-2 max-h-40 w-full overflow-y-auto rounded-2xl border border-[rgba(214,174,102,0.16)] bg-[rgba(17,19,23,0.98)] p-1.5 shadow-[0_20px_40px_rgba(0,0,0,0.28)] backdrop-blur-md">
                   {suggestions.map((suggestion) => (
                     <li
                       key={suggestion}
-                      className="px-3 py-1.5 text-sm cursor-pointer hover:bg-accent"
+                      className="cursor-pointer rounded-xl px-3 py-2 text-sm text-[#cfc5b5] transition-colors hover:bg-[rgba(255,255,255,0.06)] hover:text-[#f5dec0]"
                       onMouseDown={() => handleAddTag(suggestion)}
                     >
                       {suggestion}
@@ -156,25 +162,32 @@ export function EditTagsDialog({
               )}
             </div>
           </div>
-          <div className="flex flex-wrap items-start gap-2 min-h-[100px] border rounded-md p-2 bg-slate-50">
+          <div className="flex min-h-25 flex-wrap items-start gap-2 rounded-2xl border border-[rgba(214,174,102,0.12)] bg-[rgba(19,21,26,0.72)] p-3">
             {tags.length === 0 && (
-              <span className="text-gray-400 text-sm italic p-1">No tags</span>
+              <VmEmptyState className="flex min-h-19 w-full flex-col items-center justify-center rounded-xl border-[rgba(214,174,102,0.12)] bg-[rgba(255,255,255,0.02)] px-3 py-0">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8d8578]">
+                  Tags
+                </span>
+                <span className="mt-1 text-sm italic text-[#756d60]">
+                  No tags yet
+                </span>
+              </VmEmptyState>
             )}
             {tags.map((tag, index) => (
               editingIndex === index ? (
-                <Input
+                <VmInput
                   key={index}
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
                   onBlur={saveEdit}
                   onKeyDown={handleEditKeyDown}
                   autoFocus
-                  className="h-7 w-24 text-sm px-2 py-1"
+                  className="h-8 w-24 bg-[rgba(255,255,255,0.05)] px-2 py-1 text-sm"
                 />
               ) : (
-                <div
+                <VmChip
                   key={tag}
-                  className="flex items-center gap-1 bg-white border px-2 py-1 rounded text-sm group cursor-pointer hover:border-blue-300"
+                  className="group flex cursor-pointer items-center gap-1 px-3 py-1.5 text-sm transition-colors hover:border-[rgba(214,174,102,0.32)] hover:bg-[rgba(214,174,102,0.16)]"
                   onClick={() => startEditing(index)}
                 >
                   <span>{tag}</span>
@@ -183,24 +196,24 @@ export function EditTagsDialog({
                       e.stopPropagation();
                       handleRemoveTag(tag);
                     }}
-                    className="text-gray-400 hover:text-red-500"
+                    className="text-[#9d937f] transition-colors hover:text-[#ffb3b3]"
                   >
                     <X className="w-3 h-3" />
                   </button>
-                </div>
+                </VmChip>
               )
             ))}
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <VmButton tone="muted" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={isPending}>
+          </VmButton>
+          <VmButton onClick={handleSave} disabled={isPending}>
             Save
-          </Button>
+          </VmButton>
         </DialogFooter>
-      </DialogContent>
+      </VmDialogContent>
     </Dialog>
   );
 }

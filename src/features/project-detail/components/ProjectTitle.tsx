@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input";
+import { VmTitleInput } from "@/components/ui/vm";
 import { projects } from "@/services/projects";
 import { useState } from "react";
 
@@ -13,13 +13,12 @@ export function ProjectTitle({ projectId, initialTitle }: Props) {
   const [title, setTitle] = useState(initialTitle || "");
   const { mutate } = projects.update.useMutation({});
   return (
-    <Input
+    <VmTitleInput
       value={title}
       onChange={(e) => setTitle(e.target.value)}
       onBlur={() => {
         mutate({ id: +projectId, title });
       }}
-      className="font-bold text-blue-600 h-auto py-2 px-4"
     />
   );
 }

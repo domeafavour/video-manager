@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { VmButton } from "@/components/ui/vm";
 import { resources } from "@/services/resources";
 import { Plus } from "lucide-react";
 
@@ -11,7 +11,7 @@ export type AddResourceProps = Props;
 export function AddResource({ projectId }: Props) {
   const { mutate } = resources.save.useMutation();
   return (
-    <Button className="relative">
+    <VmButton className="relative size-10 rounded-2xl border-[rgba(214,174,102,0.22)] bg-[rgba(214,174,102,0.12)] p-0 text-[#d6ae66] hover:bg-[rgba(214,174,102,0.22)] hover:text-[#f1d6a0]">
       <input
         className="w-full absolute inset-0 appearance-none opacity-0"
         type="file"
@@ -23,7 +23,7 @@ export function AddResource({ projectId }: Props) {
           }
         }}
       />
-      <Plus className="w-4 h-4" />
-    </Button>
+      <Plus className="h-4 w-4" />
+    </VmButton>
   );
 }

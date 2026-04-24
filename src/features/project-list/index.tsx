@@ -1,3 +1,4 @@
+import { VmEyebrow, VmShell, VmShellGlow, VmTitle } from "@/components/ui/vm";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { projects } from "@/services/projects";
 import {
@@ -41,54 +42,91 @@ export function ProjectList() {
   }, [data, debouncedQuery]);
 
   return (
-    <div className="">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex w-full flex-row justify-end items-center gap-2">
-          <SearchInput value={searchQuery} onChange={setSearchQuery} />
-          <button
-            onClick={toggleProjectListType}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            title={
-              projectListType === "grid"
-                ? "Switch to list view"
-                : "Switch to grid view"
-            }
-          >
-            {projectListType === "grid" ? (
-              <List className="w-5 h-5 text-gray-600" />
-            ) : (
-              <Grid className="w-5 h-5 text-gray-600" />
-            )}
-          </button>
-        </div>
-      </div>
+    <VmShell className="min-h-full overflow-hidden p-6 md:p-7">
+      <VmShellGlow aria-hidden />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.03)_0,rgba(255,255,255,0.03)_1px,transparent_1px,transparent_3px)] opacity-20 mix-blend-soft-light"
+      />
 
-      {projectListType === "grid" ? (
-        <ResponsiveGrid>
-          {filteredData?.map((project) => (
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="mb-7 flex items-center justify-between">
+        <div className="flex items-baseline gap-3">
+          <VmEyebrow className="tracking-[0.2em]">
+            Projects
+          </VmEyebrow>
+          {filteredData && (
+            <span className="text-[11px] text-[#a39a8c]">
+              {filteredData.length}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <SearchInput value={searchQuery} onChange={setSearchQuery} />
+          <div className="flex items-center gap-0.5 rounded-md border border-[rgba(214,174,102,0.18)] bg-[rgba(255,255,255,0.04)] p-0.5">
+            <button
+              onClick={() =>
+                projectListType !== "grid" && toggleProjectListType()
+              }
+              className={`rounded p-1.5 transition-all ${
+                projectListType === "grid"
+                  ? "bg-[rgba(214,174,102,0.2)] text-[#d6ae66]"
+                  : "text-[#8d8578]"
+              }`}
+              title="Grid view"
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() =>
+                projectListType !== "list" && toggleProjectListType()
+              }
+              className={`rounded p-1.5 transition-all ${
+                projectListType === "list"
+                  ? "bg-[rgba(214,174,102,0.2)] text-[#d6ae66]"
+                  : "text-[#8d8578]"
+              }`}
+              title="List view"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        </div>
+
+        {projectListType === "grid" ? (
+          <ResponsiveGrid>
+          {filteredData?.map((project, index) => (
             <DropZone
               key={project.id}
               onDrop={(files) => addResourcesToProject(project.id, files)}
             >
-              <Link
-                to="/projects/$id"
-                params={{ id: project.id.toString() }}
-                className="group block border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white h-full"
+              <div
+                className="project-card-animate h-full"
+                style={{ animationDelay: `${index * 0.04}s` }}
               >
-                <ResponsiveGrid.Item className="p-2 flex flex-col border-none hover:shadow-none h-full">
-                  {/* Thumbnails Grid */}
-                  <Thumbnails projectId={project.id} />
-
-                  {/* Title */}
-                  <div className="flex flex-col justify-between mt-1">
-                    <div className="font-bold text-sm truncate">
+                <Link
+                  to="/projects/$id"
+                  params={{ id: project.id.toString() }}
+                  className="group block h-full overflow-hidden rounded-xl border border-[rgba(214,174,102,0.08)] bg-[#1a1c22] transition-all duration-300 hover:border-[rgba(214,174,102,0.38)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.34)]"
+                >
+                  <div className="relative overflow-hidden bg-[#111]">
+                    <Thumbnails projectId={project.id} />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 [background:linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.22)_100%),linear-gradient(90deg,rgba(214,174,102,0.08)_0%,rgba(214,174,102,0)_38%)]"
+                    />
+                  </div>
+                  <div className="p-3 flex flex-col gap-1.5 min-h-28">
+                    <VmTitle className="truncate text-[15px] font-semibold leading-tight">
                       <HighlightText
                         text={project.title}
                         query={debouncedQuery}
                       />
-                    </div>
+                    </VmTitle>
                     {project.description && (
-                      <div className="text-xs text-gray-400 truncate">
+                      <div className="truncate text-[11px] text-[#958d80]">
                         <HighlightText
                           text={project.description}
                           query={debouncedQuery}
@@ -96,12 +134,13 @@ export function ProjectList() {
                       </div>
                     )}
                     <ProjectTags tags={project.tags} query={debouncedQuery} />
-                    <div className="text-xs text-gray-500">
-                      {project.resourcesCount} resource(s)
+                    <div className="text-[10px] text-[#857d70]">
+                      {project.resourcesCount} resource
+                      {project.resourcesCount !== 1 ? "s" : ""}
                     </div>
                   </div>
-                </ResponsiveGrid.Item>
-              </Link>
+                </Link>
+              </div>
             </DropZone>
           ))}
 
@@ -109,63 +148,78 @@ export function ProjectList() {
           <DropZone onDrop={(files) => createProjectWithFiles(files)}>
             <button
               onClick={handleAddProject}
-              className="group border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white aspect-square flex items-center justify-center cursor-pointer h-full"
               disabled={isPending}
+              className="group flex h-full min-h-40 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[rgba(214,174,102,0.24)] bg-transparent transition-all duration-300 hover:border-[rgba(214,174,102,0.45)] hover:bg-[rgba(214,174,102,0.06)]"
             >
-              <Plus className="w-12 h-12 text-blue-600 group-hover:scale-110 transition-transform" />
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(214,174,102,0.26)] bg-[rgba(214,174,102,0.12)] transition-transform group-hover:scale-110"
+              >
+                <Plus className="h-5 w-5 text-[#d6ae66]" />
+              </div>
+              <span className="text-[11px] tracking-wide text-[#9d937f]">
+                New Project
+              </span>
             </button>
           </DropZone>
-        </ResponsiveGrid>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {filteredData?.map((project) => (
+          </ResponsiveGrid>
+        ) : (
+          <div className="flex flex-col gap-2">
+          {filteredData?.map((project, index) => (
             <DropZone
               key={project.id}
               onDrop={(files) => addResourcesToProject(project.id, files)}
             >
-              <Link
-                to="/projects/$id"
-                params={{ id: project.id.toString() }}
-                className="group flex items-center gap-4 p-3 border-2 border-gray-200 rounded-lg hover:shadow-lg transition-shadow bg-white"
+              <div
+                className="project-card-animate"
+                style={{ animationDelay: `${index * 0.03}s` }}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm truncate">
-                    <HighlightText
-                      text={project.title}
-                      query={debouncedQuery}
-                    />
-                  </div>
-                  {project.description && (
-                    <div className="text-xs text-gray-400 truncate">
+                <Link
+                  to="/projects/$id"
+                  params={{ id: project.id.toString() }}
+                  className="group flex rounded-xl border border-[rgba(214,174,102,0.08)] bg-[#1a1c22] px-4 py-3.5 transition-all duration-200 hover:border-[rgba(214,174,102,0.32)] hover:bg-[#1f2128]"
+                >
+                  <div className="flex-1 min-w-0 py-0.5">
+                    <VmTitle className="truncate text-[15px] font-semibold leading-tight">
                       <HighlightText
-                        text={project.description}
+                        text={project.title}
                         query={debouncedQuery}
                       />
+                    </VmTitle>
+                    {project.description && (
+                      <div className="truncate text-[11px] text-[#958d80]">
+                        <HighlightText
+                          text={project.description}
+                          query={debouncedQuery}
+                        />
+                      </div>
+                    )}
+                    <ProjectTags tags={project.tags} query={debouncedQuery} />
+                    <div className="mt-1 text-[10px] text-[#857d70]">
+                      {project.resourcesCount} resource
+                      {project.resourcesCount !== 1 ? "s" : ""}
                     </div>
-                  )}
-
-                  <ProjectTags tags={project.tags} query={debouncedQuery} />
-                  <div className="text-xs text-gray-500">
-                    {project.resourcesCount} resource(s)
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             </DropZone>
           ))}
 
-          {/* Add New Project Button */}
+          {/* Add New Project Row */}
           <DropZone onDrop={(files) => createProjectWithFiles(files)}>
             <button
               onClick={handleAddProject}
-              className="group flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg hover:shadow-lg hover:border-blue-400 transition-all bg-white cursor-pointer"
               disabled={isPending}
+              className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl border border-dashed border-[rgba(214,174,102,0.24)] bg-transparent px-4 py-3 transition-all duration-200 hover:border-[rgba(214,174,102,0.4)] hover:bg-[rgba(214,174,102,0.06)]"
             >
-              <Plus className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
-              <span className="text-blue-600 font-medium">Add Project</span>
+              <Plus className="h-4 w-4 text-[#d6ae66] transition-transform group-hover:scale-110" />
+              <span className="text-sm font-medium text-[#d6ae66]">
+                New Project
+              </span>
             </button>
           </DropZone>
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </VmShell>
   );
 }

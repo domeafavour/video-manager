@@ -1,6 +1,12 @@
-import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
+import {
+  VmButton,
+  VmChip,
+  VmEmptyState,
+  VmEyebrow,
+  VmTitle,
+} from "@/components/ui/vm";
 import { db } from "@/lib/db";
 import { dragState } from "@/lib/drag-state";
 import { cn } from "@/lib/utils";
@@ -112,53 +118,73 @@ export function Resources({ projectId }: Props) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <ButtonGroup>
-          <Button
-            variant={statusFilter === "all" ? "default" : "outline"}
+      <div className="mb-5 flex flex-wrap items-center gap-2.5">
+        <ButtonGroup className="rounded-2xl border border-[rgba(214,174,102,0.12)] bg-[rgba(19,21,26,0.82)] p-1 shadow-none">
+          <VmButton
+            tone={statusFilter === "all" ? "gold" : "muted"}
             size="sm"
             onClick={() => setStatusFilter("all")}
+            className={cn(
+              "rounded-xl border-0 shadow-none",
+              statusFilter === "all"
+                ? "bg-[rgba(214,174,102,0.18)] text-[#f1d6a0] hover:bg-[rgba(214,174,102,0.24)]"
+                : "bg-transparent text-[#9d937f] hover:bg-[rgba(255,255,255,0.04)] hover:text-[#e7dece]",
+            )}
           >
             All
-          </Button>
-          <Button
-            variant={statusFilter === "used" ? "default" : "outline"}
+          </VmButton>
+          <VmButton
+            tone={statusFilter === "used" ? "gold" : "muted"}
             size="sm"
             onClick={() => setStatusFilter("used")}
+            className={cn(
+              "rounded-xl border-0 shadow-none",
+              statusFilter === "used"
+                ? "bg-[rgba(214,174,102,0.18)] text-[#f1d6a0] hover:bg-[rgba(214,174,102,0.24)]"
+                : "bg-transparent text-[#9d937f] hover:bg-[rgba(255,255,255,0.04)] hover:text-[#e7dece]",
+            )}
           >
             Used
-          </Button>
-          <Button
-            variant={statusFilter === "unused" ? "default" : "outline"}
+          </VmButton>
+          <VmButton
+            tone={statusFilter === "unused" ? "gold" : "muted"}
             size="sm"
             onClick={() => setStatusFilter("unused")}
+            className={cn(
+              "rounded-xl border-0 shadow-none",
+              statusFilter === "unused"
+                ? "bg-[rgba(214,174,102,0.18)] text-[#f1d6a0] hover:bg-[rgba(214,174,102,0.24)]"
+                : "bg-transparent text-[#9d937f] hover:bg-[rgba(255,255,255,0.04)] hover:text-[#e7dece]",
+            )}
           >
             Unused
-          </Button>
+          </VmButton>
         </ButtonGroup>
         {allProjectTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1">
             {allProjectTags.map((tag) => (
-              <button
+              <VmChip
+                as="button"
                 key={tag}
                 onClick={() => toggleTagFilter(tag)}
                 className={cn(
-                  "text-xs px-2 py-1 rounded-full border transition-colors",
+                  "rounded-full border px-2.5 py-1 text-xs transition-colors",
                   selectedTags.includes(tag)
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50",
+                    ? "border-[rgba(214,174,102,0.28)] bg-[rgba(214,174,102,0.16)] text-[#f1d6a0]"
+                    : "border-[rgba(214,174,102,0.16)] bg-[rgba(255,255,255,0.03)] text-[#b8ae9c] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#eee6d8]",
                 )}
               >
                 {tag}
-              </button>
+              </VmChip>
             ))}
             {selectedTags.length > 0 && (
-              <button
+              <VmChip
+                as="button"
                 onClick={() => setSelectedTags([])}
-                className="text-xs px-2 py-1 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors"
+                className="rounded-full border-[rgba(214,174,102,0.14)] bg-[rgba(255,255,255,0.02)] px-2.5 py-1 text-xs text-[#8d8578] transition-colors hover:bg-[rgba(255,255,255,0.04)] hover:text-[#e7dece]"
               >
                 Clear
-              </button>
+              </VmChip>
             )}
           </div>
         )}
@@ -186,19 +212,24 @@ export function Resources({ projectId }: Props) {
           />
         ))}
         {!filteredMaterials?.length && (
-          <div className="col-span-full text-center py-16 text-muted-foreground bg-muted/30 rounded-xl border-2 border-dashed">
-            <div className="text-4xl mb-3">📁</div>
-            <div className="font-medium">
+          <VmEmptyState className="col-span-full text-[#9d937f]">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(214,174,102,0.18)] bg-[rgba(214,174,102,0.08)] text-2xl shadow-[0_14px_30px_rgba(0,0,0,0.2)]">
+              📁
+            </div>
+            <VmEyebrow className="text-[#8d8578]">
+              Library
+            </VmEyebrow>
+            <VmTitle className="mt-2 text-[22px] font-semibold text-[#e7dece]">
               {materials?.length
                 ? "No materials match the selected filter"
                 : "No materials yet"}
-            </div>
-            <div className="text-sm mt-1">
+            </VmTitle>
+            <div className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#8d8578]">
               {materials?.length
                 ? "Try selecting a different filter or clearing tag filters"
                 : "Drag and drop files here to get started"}
             </div>
-          </div>
+          </VmEmptyState>
         )}
       </ResponsiveGrid>
     </>

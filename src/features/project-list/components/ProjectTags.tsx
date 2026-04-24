@@ -1,3 +1,4 @@
+import { VmChip } from "@/components/ui/vm";
 import { useMemo } from "react";
 import { HighlightText } from "./HighlightText";
 
@@ -19,14 +20,14 @@ export function ProjectTags({ tags, query }: Props) {
   }, [tags, trimmedQuery]);
 
   return displayTags?.length ? (
-    <div className="flex flex-wrap gap-1 mt-1">
+    <div className="flex flex-wrap content-start gap-1 mt-1 min-h-5">
       {displayTags.map((tag) => (
-        <span
+        <VmChip
           key={tag}
-          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-600 rounded"
+          className="rounded-md border-[rgba(214,174,102,0.2)] bg-[rgba(214,174,102,0.1)] px-2 py-px text-[10px] font-medium leading-tight text-[#c5a36a]"
         >
           <HighlightText text={tag} query={trimmedQuery} />
-        </span>
+        </VmChip>
       ))}
     </div>
   ) : null;
