@@ -19,4 +19,5 @@ export interface MaterialEntity extends BaseEntity {
   path: string;
   status: 'used' | 'unused';
   tags?: string[];
+  deletedAt?: number;
 }
