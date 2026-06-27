@@ -42,7 +42,7 @@ function OpenedProjects() {
                 params={{ id: openedId }}
                 className="font-medium flex-1"
                 activeProps={{
-                  className: "bg-gray-200",
+                  className: "bg-accent text-accent-foreground",
                 }}
               >
                 <span className="truncate">{p.title}</span>
