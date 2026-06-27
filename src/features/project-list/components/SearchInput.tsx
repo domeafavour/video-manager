@@ -14,7 +14,7 @@ export function SearchInput({
 }: SearchInputProps) {
   return (
     <div className="relative w-64">
-      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
       <Input
         type="text"
         value={value}
@@ -25,9 +25,9 @@ export function SearchInput({
       {value && (
         <button
           onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-sm hover:bg-gray-100 transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-sm hover:bg-accent transition-colors text-muted-foreground"
         >
-          <X className="w-3.5 h-3.5 text-gray-400" />
+          <X className="w-3.5 h-3.5" />
         </button>
       )}
     </div>

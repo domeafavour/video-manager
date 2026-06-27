@@ -23,7 +23,7 @@ export function ProjectTags({ tags, query }: Props) {
       {displayTags.map((tag) => (
         <span
           key={tag}
-          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-600 rounded"
+          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-primary/15 text-primary rounded-sm"
         >
           <HighlightText text={tag} query={trimmedQuery} />
         </span>

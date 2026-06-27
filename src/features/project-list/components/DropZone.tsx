@@ -64,7 +64,7 @@ export function DropZone({ children, className, onDrop }: Props) {
     <div
       className={cn(
         "h-full transition-colors relative",
-        isDragging && "ring-4 ring-blue-400 ring-inset",
+        isDragging && "ring-2 ring-primary ring-inset rounded-lg",
         className
       )}
       onDrop={handleDrop}
@@ -72,8 +72,8 @@ export function DropZone({ children, className, onDrop }: Props) {
       onDragLeave={handleDragLeave}
     >
       {isDragging && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50 bg-blue-50 bg-opacity-90">
-          <div className="text-lg text-blue-600 font-semibold bg-white p-3 rounded-lg shadow-lg">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50 bg-background/80 backdrop-blur-sm rounded-lg">
+          <div className="text-sm text-primary font-semibold bg-card border border-border px-4 py-2 rounded-md shadow-sm">
             Drop files here
           </div>
         </div>
