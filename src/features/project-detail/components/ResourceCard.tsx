@@ -140,7 +140,7 @@ export function ResourceCard({
             </Button>
           </EditResourceTags>
 
-          <DeleteResource resourceId={material.id} resourcePath={material.path}>
+          <DeleteResource resourceId={material.id}>
             <Button
               variant="secondary"
               size="icon-sm"
