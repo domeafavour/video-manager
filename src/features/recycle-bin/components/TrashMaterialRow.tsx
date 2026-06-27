@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ResourceThumbnail } from "@/components/ResourceThumbnail";
 import { formatBytes } from "@/utils/formatBytes";
 import type { MaterialEntity } from "@/typings";
 import { RotateCcw } from "lucide-react";
@@ -21,16 +22,7 @@ export function TrashMaterialRow({
   return (
     <div className="flex items-center gap-4 p-3 border border-border rounded-lg bg-card">
       {/* Thumbnail */}
-      <div className="size-12 shrink-0 rounded-md bg-muted overflow-hidden">
-        <img
-          src={`file://${material.path}`}
-          alt=""
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
-      </div>
+      <ResourceThumbnail path={material.path} />
 
       {/* Info */}
       <div className="flex-1 min-w-0">

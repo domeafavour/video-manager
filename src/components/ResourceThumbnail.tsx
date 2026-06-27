@@ -1,8 +1,9 @@
+import { useThumbnail } from "@/hooks/useThumbnail";
 import { cn } from "@/lib/utils";
 import { isImage, isVideo } from "@/utils/file-type";
 import { getFileIcon } from "@/utils/get-file-icon";
 import { FileImage, FileVideo } from "lucide-react";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren } from "react";
 
 interface Props {
   path: string;
@@ -28,46 +29,42 @@ function IconShape({
 }
 
 export function ResourceThumbnail({ path, className }: Props) {
-  const [error, setError] = useState(false);
+  const { thumbnail, isLoading } = useThumbnail(path);
 
-  if (isImage(path)) {
-    if (error) {
-      return (
-        <IconShape className={className}>
-          <FileImage className="w-6 h-6 text-muted-foreground" />
-        </IconShape>
-      );
-    }
+  // ponytail: render cached thumbnail when available
+  if (thumbnail) {
     return (
       <IconShape className={className}>
         <img
-          src={`file://${path}`}
+          src={thumbnail}
           alt="thumbnail"
           className="w-full h-full object-cover"
-          loading="lazy"
-          decoding="async"
-          onError={() => setError(true)}
         />
       </IconShape>
     );
   }
 
-  if (isVideo(path)) {
-    if (error) {
-      return (
-        <IconShape className={className}>
-          <FileVideo className="w-6 h-6 text-muted-foreground" />
-        </IconShape>
-      );
-    }
+  // ponytail: show skeleton while generating, then fallback on error
+  if (isLoading && (isImage(path) || isVideo(path))) {
     return (
       <IconShape className={className}>
-        <video
-          src={`file://${path}#t=0.1`}
-          className="w-full h-full object-cover"
-          preload="metadata"
-          onError={() => setError(true)}
-        />
+        <div className="w-full h-full animate-pulse bg-muted-foreground/10" />
+      </IconShape>
+    );
+  }
+
+  if (isImage(path)) {
+    return (
+      <IconShape className={className}>
+        <FileImage className="w-6 h-6 text-muted-foreground" />
+      </IconShape>
+    );
+  }
+
+  if (isVideo(path)) {
+    return (
+      <IconShape className={className}>
+        <FileVideo className="w-6 h-6 text-muted-foreground" />
       </IconShape>
     );
   }
