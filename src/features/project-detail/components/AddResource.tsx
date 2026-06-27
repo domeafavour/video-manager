@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { resources } from "@/services/resources";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   projectId: string | number;
@@ -9,9 +10,16 @@ interface Props {
 export type AddResourceProps = Props;
 
 export function AddResource({ projectId }: Props) {
-  const { mutate } = resources.save.useMutation();
+  const { mutate } = resources.save.useMutation({
+    onSuccess: () => {
+      toast.success("Resources added");
+    },
+    onError: () => {
+      toast.error("Failed to add resources");
+    },
+  });
   return (
-    <Button className="relative">
+    <Button className="relative" title="Add files">
       <input
         className="w-full absolute inset-0 appearance-none opacity-0"
         type="file"

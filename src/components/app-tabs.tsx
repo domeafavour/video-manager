@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils";
 import { projects } from "@/services/projects";
 import { deleteOpenedId, useOpenedIds } from "@/stores/opened-projects";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Plus, Video, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { SidebarTrigger } from "./ui/sidebar";
 
 export function AppTabs() {
   const navigate = useNavigate();
@@ -18,18 +19,8 @@ export function AppTabs() {
   const entities = data ? Object.fromEntries(data.map((p) => [p.id, p])) : {};
 
   return (
-    <div className="flex items-center bg-muted/50 border-b">
-      {/* App logo/title - fixed */}
-      <Link to="/" className="shrink-0">
-        <div className="flex items-center gap-2 px-3">
-          <div className="bg-primary text-primary-foreground flex aspect-square size-7 items-center justify-center rounded-md">
-            <Video className="size-4" />
-          </div>
-          <span className="font-semibold text-sm hidden sm:inline">
-            Video Manager
-          </span>
-        </div>
-      </Link>
+    <div className="flex items-center bg-sidebar border-b border-border">
+      <SidebarTrigger className="ml-1 size-7 text-muted-foreground hover:text-foreground" />
 
       <div className="w-px h-6 bg-border mx-1 shrink-0" />
 
@@ -47,9 +38,9 @@ export function AppTabs() {
               <div
                 key={openedId}
                 className={cn(
-                  "group inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-md text-sm font-medium transition-colors shrink-0 max-w-50",
+                  "group inline-flex items-center gap-1 pl-3 pr-1 py-1.5 rounded-md text-sm font-medium transition-all shrink-0 max-w-50",
                   isActive
-                    ? "bg-background text-foreground shadow-sm"
+                    ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground hover:bg-background/50",
                 )}
               >
@@ -63,7 +54,7 @@ export function AppTabs() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="size-5 opacity-0 group-hover:opacity-100 hover:bg-muted ml-1 shrink-0"
+                  className="size-5 opacity-0 group-hover:opacity-100 hover:bg-muted ml-1 shrink-0 text-muted-foreground"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -97,7 +88,7 @@ export function AppTabs() {
       <Button
         variant="ghost"
         size="icon"
-        className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
+        className="size-7 shrink-0 text-muted-foreground hover:text-foreground mr-2"
         onClick={() => addProject()}
         title="New project"
       >

@@ -65,7 +65,7 @@ export const Thumbnails = memo(function Thumbnails({ projectId }: Props) {
         ) : (
           <div
             key={index}
-            className="w-full h-full bg-gray-100 border border-gray-200"
+            className="w-full h-full bg-muted/50 border border-border"
           />
         );
       })}

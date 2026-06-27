@@ -9,11 +9,14 @@ interface Props {
 export type DeleteProjectProps = Props;
 
 export function DeleteProject({ projectId }: Props) {
-  const [handleDelete] = useDeleteProject();
+  const [handleDelete, dialog] = useDeleteProject();
 
   return (
-    <Button variant="destructive" onClick={() => handleDelete(projectId)}>
-      <Trash />
-    </Button>
+    <>
+      <Button variant="destructive" onClick={() => handleDelete(projectId)}>
+        <Trash />
+      </Button>
+      {dialog}
+    </>
   );
 }

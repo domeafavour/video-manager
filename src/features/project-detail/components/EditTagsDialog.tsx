@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { resources } from "@/services/resources";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -37,7 +38,11 @@ export function EditTagsDialog({
 
   const { mutate: updateTags, isPending } = resources.updateTags.useMutation({
     onSuccess: () => {
+      toast.success("Tags updated");
       onOpenChange(false);
+    },
+    onError: () => {
+      toast.error("Failed to update tags");
     },
   });
 
@@ -142,7 +147,7 @@ export function EditTagsDialog({
                 placeholder="Add a tag..."
               />
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-md max-h-40 overflow-y-auto">
+                <ul className="absolute z-10 mt-1 w-full bg-popover border border-border rounded-md shadow-sm max-h-40 overflow-y-auto">
                   {suggestions.map((suggestion) => (
                     <li
                       key={suggestion}
@@ -156,9 +161,9 @@ export function EditTagsDialog({
               )}
             </div>
           </div>
-          <div className="flex flex-wrap items-start gap-2 min-h-[100px] border rounded-md p-2 bg-slate-50">
+          <div className="flex flex-wrap items-start gap-2 min-h-[100px] border border-border rounded-md p-2 bg-muted/30">
             {tags.length === 0 && (
-              <span className="text-gray-400 text-sm italic p-1">No tags</span>
+              <span className="text-muted-foreground text-sm italic p-1">No tags</span>
             )}
             {tags.map((tag, index) => (
               editingIndex === index ? (
@@ -174,7 +179,7 @@ export function EditTagsDialog({
               ) : (
                 <div
                   key={tag}
-                  className="flex items-center gap-1 bg-white border px-2 py-1 rounded text-sm group cursor-pointer hover:border-blue-300"
+                  className="flex items-center gap-1 bg-card border border-border px-2 py-1 rounded-sm text-sm group cursor-pointer hover:border-primary/50"
                   onClick={() => startEditing(index)}
                 >
                   <span>{tag}</span>
@@ -183,7 +188,7 @@ export function EditTagsDialog({
                       e.stopPropagation();
                       handleRemoveTag(tag);
                     }}
-                    className="text-gray-400 hover:text-red-500"
+                    className="text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>

@@ -17,7 +17,7 @@ export function HighlightText({ text, query }: HighlightTextProps) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-yellow-200 text-inherit">
+          <mark key={i} className="bg-primary/30 text-foreground rounded-sm px-0.5">
             {part}
           </mark>
         ) : (

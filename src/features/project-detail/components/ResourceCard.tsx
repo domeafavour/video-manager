@@ -25,6 +25,7 @@ import {
   Trash,
   XIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 import { DeleteResource } from "./DeleteResource";
 import { EditResourceTags } from "./EditResourceTags";
 import { PreviewResource } from "./PreviewResource";
@@ -50,7 +51,14 @@ export function ResourceCard({
   onDragEnd,
   onHighlight,
 }: ResourceCardProps) {
-  const { mutate: updateStatus } = resources.updateStatus.useMutation();
+  const { mutate: updateStatus } = resources.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Status updated");
+    },
+    onError: () => {
+      toast.error("Failed to update status");
+    },
+  });
 
   function onSetStatus(id: number, status: MaterialEntity["status"]) {
     updateStatus({ id, status });
@@ -75,9 +83,9 @@ export function ResourceCard({
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        "group cursor-move relative shadow-sm hover:shadow-lg transition-all duration-300",
+        "group cursor-move relative shadow-xs hover:shadow-md transition-all duration-300",
         isHighlighted &&
-          "ring-2 ring-sky-500/80 ring-offset-2 ring-offset-background bg-sky-50/30",
+          "ring-2 ring-primary/60 ring-offset-2 ring-offset-background bg-primary/[0.03]",
       )}
     >
       <button
@@ -89,8 +97,8 @@ export function ResourceCard({
         className={cn(
           "absolute top-2 left-2 z-20 size-5 rounded-sm border backdrop-blur-sm shadow-sm flex items-center justify-center transition-colors",
           isSelected
-            ? "bg-blue-500 border-blue-500 text-white"
-            : "bg-white/85 border-white/80 text-transparent hover:bg-white",
+            ? "bg-primary border-primary text-primary-foreground"
+            : "bg-card/85 border-border text-transparent hover:bg-card",
         )}
         aria-label={isSelected ? "Deselect resource" : "Select resource"}
         title={isSelected ? "Deselect resource" : "Select resource"}
@@ -111,7 +119,7 @@ export function ResourceCard({
               <Button
                 variant="secondary"
                 size="icon-sm"
-                className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
+                className="bg-card/90 backdrop-blur-sm hover:bg-card shadow-xs"
               >
                 <EyeIcon className="size-3.5" />
               </Button>
@@ -126,7 +134,7 @@ export function ResourceCard({
             <Button
               variant="secondary"
               size="icon-sm"
-              className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
+              className="bg-card/90 backdrop-blur-sm hover:bg-card shadow-xs"
             >
               <Tags className="size-3.5" />
             </Button>
@@ -136,7 +144,7 @@ export function ResourceCard({
             <Button
               variant="secondary"
               size="icon-sm"
-              className="bg-white/90 backdrop-blur-sm hover:bg-white hover:text-destructive shadow-sm"
+              className="bg-card/90 backdrop-blur-sm hover:bg-card hover:text-destructive shadow-xs"
             >
               <Trash className="size-3.5" />
             </Button>
@@ -147,7 +155,7 @@ export function ResourceCard({
               <Button
                 variant="secondary"
                 size="icon-sm"
-                className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
+                className="bg-card/90 backdrop-blur-sm hover:bg-card shadow-xs"
                 aria-label="More Options"
               >
                 <MoreHorizontalIcon className="size-3.5" />
@@ -185,8 +193,8 @@ export function ResourceCard({
           className={cn(
             "absolute bottom-2 left-2 text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm",
             material.status === "used"
-              ? "bg-green-500/90 text-white"
-              : "bg-white/90 text-muted-foreground",
+              ? "bg-green-600/90 text-white"
+              : "bg-card/90 text-muted-foreground border border-border/50",
           )}
         >
           {material.status === "used" ? "Used" : "Unused"}
@@ -213,8 +221,8 @@ export function ResourceCard({
                   className={cn(
                     "text-[10px] px-1.5 py-0.5 rounded-md font-medium",
                     isTime
-                      ? "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400"
-                      : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+                      ? "bg-chart-3/20 text-chart-3"
+                      : "bg-primary/15 text-primary",
                   )}
                 >
                   {tag}

@@ -145,8 +145,8 @@ export function Resources({ projectId }: Props) {
                 className={cn(
                   "text-xs px-2 py-1 rounded-full border transition-colors",
                   selectedTags.includes(tag)
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-blue-700 border-blue-300 hover:bg-blue-50",
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 {tag}
@@ -155,7 +155,7 @@ export function Resources({ projectId }: Props) {
             {selectedTags.length > 0 && (
               <button
                 onClick={() => setSelectedTags([])}
-                className="text-xs px-2 py-1 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors"
+                className="text-xs px-2 py-1 rounded-full border border-border text-muted-foreground hover:bg-accent transition-colors"
               >
                 Clear
               </button>
@@ -186,7 +186,7 @@ export function Resources({ projectId }: Props) {
           />
         ))}
         {!filteredMaterials?.length && (
-          <div className="col-span-full text-center py-16 text-muted-foreground bg-muted/30 rounded-xl border-2 border-dashed">
+          <div className="col-span-full text-center py-16 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
             <div className="text-4xl mb-3">📁</div>
             <div className="font-medium">
               {materials?.length
