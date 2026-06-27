@@ -91,7 +91,7 @@ export function VideoPreviewDialog({
         <DialogHeader>
           <DialogTitle>Video Preview</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
+        <div className="flex-1 overflow-hidden flex items-center justify-center bg-muted/30 rounded-md">
           <ReactPlayer
             ref={playerRef}
             src={`file://${resourcePath}`}
@@ -116,17 +116,17 @@ export function VideoPreviewDialog({
             </Button>
           </div>
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-md border">
+            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 bg-muted/30 rounded-md border border-border">
               {tags.map((tag) => {
                 const isTime = isTimeTag(tag);
                 return (
                   <div
                     key={tag}
                     className={cn(
-                      "flex items-center gap-1 px-2 py-1 rounded text-sm group border",
+                      "flex items-center gap-1 px-2 py-1 rounded-sm text-sm group border border-border",
                       isTime
-                        ? "bg-purple-50 text-purple-700 border-purple-200 cursor-pointer hover:bg-purple-100"
-                        : "bg-blue-50 text-blue-600 border-blue-100"
+                        ? "bg-chart-3/20 text-chart-3 cursor-pointer hover:bg-chart-3/30"
+                        : "bg-primary/15 text-primary"
                     )}
                     onClick={() => handleTagClick(tag)}
                   >
@@ -136,7 +136,7 @@ export function VideoPreviewDialog({
                         e.stopPropagation();
                         handleRemoveTag(tag);
                       }}
-                      className="text-gray-400 hover:text-red-500"
+                      className="text-muted-foreground hover:text-destructive transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>

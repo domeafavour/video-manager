@@ -13,6 +13,7 @@ import { resources } from "@/services/resources";
 import { useDisclosure } from "@domeadev/react-disclosure";
 import { Slot, SlotProps } from "@radix-ui/react-slot";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface Props extends SlotProps {
   resourceId: number;
@@ -85,7 +86,11 @@ export function DeleteResource({
                 },
                 {
                   onSuccess: () => {
+                    toast.success("Resource deleted");
                     toggleOpen(false);
+                  },
+                  onError: () => {
+                    toast.error("Failed to delete resource");
                   },
                 },
               );

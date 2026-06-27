@@ -44,7 +44,7 @@ export function PreviewResource({ resource, children, ...props }: Props) {
             <DialogHeader>
               <DialogTitle>Preview</DialogTitle>
             </DialogHeader>
-            <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/5 rounded-md">
+            <div className="flex-1 overflow-hidden flex items-center justify-center bg-muted/30 rounded-md">
               <img
                 src={`file://${resource.path}`}
                 alt="Preview"

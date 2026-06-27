@@ -21,7 +21,7 @@ export function SelectionToolbar({
 
   return (
     <div className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 z-50 pointer-events-none">
-      <div className="inline-flex items-center gap-2 rounded-full border bg-background/95 px-1 py-1 shadow-lg backdrop-blur-sm pointer-events-auto">
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/95 px-1 py-1 shadow-sm backdrop-blur-sm pointer-events-auto">
         <button
           type="button"
           draggable
@@ -29,7 +29,7 @@ export function SelectionToolbar({
           onDragEnd={onDragEnd}
           className={cn(
             "inline-flex flex-row items-center gap-1",
-            "min-w-12 h-8 px-3 py-1 text-sm rounded-full border border-blue-500 bg-blue-50 text-blue-700 font-semibold cursor-grab active:cursor-grabbing",
+            "min-w-12 h-8 px-3 py-1 text-sm rounded-full border border-primary/50 bg-primary/15 text-primary font-semibold cursor-grab active:cursor-grabbing",
           )}
           title="Drag selected resources"
         >

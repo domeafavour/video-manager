@@ -2,6 +2,7 @@ import { dragState } from "@/lib/drag-state";
 import { cn } from "@/lib/utils";
 import { resources } from "@/services/resources";
 import { PropsWithChildren, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Props extends PropsWithChildren {
   className?: string;
@@ -11,7 +12,14 @@ interface Props extends PropsWithChildren {
 export type DropFilesToAddProps = Props;
 
 export function DropFilesToAdd({ children, className, projectId }: Props) {
-  const { mutate: addResources } = resources.save.useMutation();
+  const { mutate: addResources } = resources.save.useMutation({
+    onSuccess: () => {
+      toast.success("Resources added");
+    },
+    onError: () => {
+      toast.error("Failed to add resources");
+    },
+  });
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
@@ -68,7 +76,7 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
     <div
       className={cn(
         "h-full transition-colors relative rounded",
-        isDragging && "bg-blue-50 outline-2 outline-dashed outline-blue-400",
+        isDragging && "bg-primary/[0.03] outline-2 outline-dashed outline-primary/50",
         className
       )}
       onDrop={handleDrop}
@@ -77,7 +85,7 @@ export function DropFilesToAdd({ children, className, projectId }: Props) {
     >
       {isDragging && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="text-2xl text-blue-600 font-semibold bg-white bg-opacity-75 p-4 rounded-lg">
+          <div className="text-lg text-primary font-semibold bg-card/90 backdrop-blur-sm border border-border px-4 py-2 rounded-md">
             Drop files to add
           </div>
         </div>
