@@ -1,4 +1,4 @@
-import { Plus, Video, X } from "lucide-react";
+import { Plus, Trash2, Video, X } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAddProject } from "@/features/project-list/hooks/useAddProject";
 import { projects } from "@/services/projects";
+import { resources } from "@/services/resources";
 import { deleteOpenedId, useOpenedIds } from "@/stores/opened-projects";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "./ui/button";
@@ -72,6 +73,9 @@ function OpenedProjects() {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [addProject] = useAddProject();
+  const { data: trashMaterials } = resources.trashList.useQuery();
+  const trashCount = trashMaterials?.length ?? 0;
+
   return (
     <Sidebar variant="floating" {...props}>
       <SidebarHeader>
@@ -102,6 +106,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <OpenedProjects />
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to="/recycle-bin">
+                  <Trash2 className="size-4" />
+                  <span>Recycle Bin</span>
+                  {trashCount > 0 && (
+                    <span className="ms-auto text-xs bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5 min-w-5 text-center leading-tight">
+                      {trashCount}
+                    </span>
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

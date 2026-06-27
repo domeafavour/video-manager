@@ -43,7 +43,29 @@ export const resources = router("resources", {
   }),
   delete: router.mutation({
     meta: {
-      invalidatesTags: ["Resources"],
+      invalidatesTags: ["Resources", "Trash"],
+    },
+    mutationFn: async (variables: { id: number | string }) => {
+      await db.trashMaterial(+variables.id);
+    },
+  }),
+  trashList: router.query({
+    meta: {
+      tags: ["Trash"],
+    },
+    fetcher: () => db.getTrashMaterials(),
+  }),
+  trashRestore: router.mutation({
+    meta: {
+      invalidatesTags: ["Trash", "Resources"],
+    },
+    mutationFn: async (variables: { id: number | string }) => {
+      await db.restoreMaterial(+variables.id);
+    },
+  }),
+  trashDelete: router.mutation({
+    meta: {
+      invalidatesTags: ["Trash"],
     },
     mutationFn: async (variables: {
       id: number | string;
@@ -51,10 +73,19 @@ export const resources = router("resources", {
     }) => {
       const resourceId = +variables.id;
       const resource = await db.getMaterial(resourceId);
+      if (!resource) throw new Error("Material not found");
       await db.deleteMaterial(resourceId);
       if (variables.shouldDeleteNative) {
-        await db.deleteNativeFile(resource!.path);
+        await db.deleteNativeFile(resource.path);
       }
+    },
+  }),
+  trashEmpty: router.mutation({
+    meta: {
+      invalidatesTags: ["Trash", "Resources"],
+    },
+    mutationFn: async (variables?: { deleteNative?: boolean }) => {
+      await db.emptyTrash(variables);
     },
   }),
   updateStatus: router.mutation({

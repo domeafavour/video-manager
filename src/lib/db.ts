@@ -10,12 +10,12 @@ interface VideoManagerDB extends DBSchema {
   materials: {
     key: number;
     value: MaterialEntity;
-    indexes: { "projectId": number; "updatedAt": number };
+    indexes: { "projectId": number; "updatedAt": number; "deletedAt": number };
   };
 }
 
 const DB_NAME = "video-manager-db";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
 
@@ -64,6 +64,13 @@ function getDB() {
             }
           }
         }
+
+        // Migration for version 4: Add deletedAt index for recycle bin
+        if (oldVersion < 4) {
+          if (!materialStore.indexNames.contains("deletedAt")) {
+            materialStore.createIndex("deletedAt", "deletedAt");
+          }
+        }
       },
     });
   }
@@ -77,8 +84,9 @@ export const db = {
     const projectsWithCount = await Promise.all(
       projects.map(async (p) => {
         const materials = await db.getAllFromIndex("materials", "projectId", p.id);
-        const tags = [...new Set(materials.flatMap((m) => m.tags ?? []))];
-        return { ...p, resourcesCount: materials.length, tags };
+        const activeMaterials = materials.filter((m) => !m.deletedAt);
+        const tags = [...new Set(activeMaterials.flatMap((m) => m.tags ?? []))];
+        return { ...p, resourcesCount: activeMaterials.length, tags };
       })
     );
     return projectsWithCount.reverse();
@@ -134,7 +142,9 @@ export const db = {
       "projectId",
       projectId
     );
-    return materials.sort((a, b) => b.updatedAt - a.updatedAt);
+    return materials
+      .filter((m) => !m.deletedAt)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
   },
   getMaterial: async (id: number): Promise<MaterialEntity | undefined> => {
     const db = await getDB();
@@ -168,6 +178,62 @@ export const db = {
     const db = await getDB();
     await db.delete("materials", id);
     return id;
+  },
+  trashMaterial: async (id: number) => {
+    const db = await getDB();
+    const material = await db.get("materials", id);
+    if (!material) throw new Error("Material not found");
+    material.deletedAt = Date.now();
+    material.updatedAt = material.deletedAt;
+    await db.put("materials", material);
+    return id;
+  },
+  restoreMaterial: async (id: number) => {
+    const db = await getDB();
+    const material = await db.get("materials", id);
+    if (!material) throw new Error("Material not found");
+    delete material.deletedAt;
+    material.updatedAt = Date.now();
+    await db.put("materials", material);
+    return id;
+  },
+  getTrashMaterials: async (): Promise<MaterialEntity[]> => {
+    const db = await getDB();
+    const deleted: MaterialEntity[] = [];
+    let cursor = await db
+      .transaction("materials")
+      .store.index("deletedAt")
+      .openCursor(IDBKeyRange.lowerBound(1));
+    while (cursor) {
+      deleted.push(cursor.value);
+      cursor = await cursor.continue();
+    }
+    return deleted.sort(
+      (a, b) => (b.deletedAt ?? 0) - (a.deletedAt ?? 0)
+    );
+  },
+  emptyTrash: async (options?: { deleteNative?: boolean }) => {
+    const database = await getDB();
+    const paths: string[] = [];
+    const tx = database.transaction("materials", "readwrite");
+    let cursor = await tx.store
+      .index("deletedAt")
+      .openCursor(IDBKeyRange.lowerBound(1));
+    while (cursor) {
+      paths.push(cursor.value.path);
+      await cursor.delete();
+      cursor = await cursor.continue();
+    }
+    await tx.done;
+    if (options?.deleteNative) {
+      for (const path of paths) {
+        try {
+          await db.deleteNativeFile(path);
+        } catch {
+          // silently skip individual file deletion errors during bulk empty
+        }
+      }
+    }
   },
   getMaterialsByPath: async (filePath: string): Promise<MaterialEntity[]> => {
     const db = await getDB();
