@@ -8,7 +8,7 @@ const Root = React.forwardRef<
   return (
     <div
       className={cn(
-        "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4",
+        "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 items-stretch",
         className
       )}
       ref={forwardedRef}
@@ -25,7 +25,7 @@ const Item = React.forwardRef<
   return (
     <div
       className={cn(
-        "relative flex flex-col border rounded-lg overflow-hidden bg-white hover:shadow-md transition-all ",
+        "relative flex flex-col border border-border rounded-md overflow-hidden bg-card hover:shadow-sm transition-all",
         className
       )}
       ref={forwardedRef}
