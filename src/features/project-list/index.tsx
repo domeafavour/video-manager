@@ -12,7 +12,7 @@ import { FolderPlus, Grid, List, Plus, SearchX } from "lucide-react";
 import { useMemo } from "react";
 import { useDebounce } from "use-debounce";
 import { DropZone } from "./components/DropZone";
-import { HighlightText } from "./components/HighlightText";
+import { HighlightText } from "@/components/ui/HighlightText";
 import { ProjectTags } from "./components/ProjectTags";
 import { SearchInput } from "./components/SearchInput";
 import { Thumbnails } from "./components/Thumbnails";
