@@ -52,7 +52,7 @@ export const Thumbnails = memo(function Thumbnails({ projectId }: Props) {
   return (
     <div
       ref={containerRef}
-      className="flex-1 grid grid-cols-3 grid-rows-2 rounded-sm overflow-hidden"
+      className="aspect-[3/2] grid grid-cols-3 grid-rows-2 rounded-sm overflow-hidden"
     >
       {SLOT_INDICES.map((index) => {
         const item = data?.[index];
