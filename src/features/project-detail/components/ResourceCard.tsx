@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { db } from "@/lib/db";
+import { TagList } from "@/components/ui/TagList";
 import { cn } from "@/lib/utils";
 import { resources } from "@/services/resources";
 import { MaterialEntity } from "@/typings";
 import { isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
-import { isTimeTag } from "@/utils/time-tag";
 import {
   CheckIcon,
   CopyIcon,
@@ -212,29 +212,7 @@ export function ResourceCard({
           {formatBytes(material.size)}
         </div>
         {material.tags && material.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-1">
-            {material.tags.slice(0, 4).map((tag) => {
-              const isTime = isTimeTag(tag);
-              return (
-                <span
-                  key={tag}
-                  className={cn(
-                    "text-[10px] px-1.5 py-0.5 rounded-md font-medium",
-                    isTime
-                      ? "bg-chart-3/20 text-chart-3"
-                      : "bg-primary/15 text-primary",
-                  )}
-                >
-                  {tag}
-                </span>
-              );
-            })}
-            {material.tags.length > 4 && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">
-                +{material.tags.length - 4}
-              </span>
-            )}
-          </div>
+          <TagList tags={material.tags} max={4} className="pt-1" />
         )}
       </div>
     </ResponsiveGrid.Item>

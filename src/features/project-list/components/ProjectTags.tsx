@@ -1,5 +1,5 @@
+import { TagList } from "@/components/ui/TagList";
 import { useMemo } from "react";
-import { HighlightText } from "./HighlightText";
 
 interface Props {
   tags?: string[];
@@ -18,16 +18,7 @@ export function ProjectTags({ tags, query }: Props) {
       : tags;
   }, [tags, trimmedQuery]);
 
-  return displayTags?.length ? (
-    <div className="flex flex-wrap gap-1 mt-1">
-      {displayTags.map((tag) => (
-        <span
-          key={tag}
-          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-primary/15 text-primary rounded-sm"
-        >
-          <HighlightText text={tag} query={trimmedQuery} />
-        </span>
-      ))}
-    </div>
-  ) : null;
+  if (!displayTags?.length) return null;
+
+  return <TagList tags={displayTags} query={trimmedQuery} />;
 }
