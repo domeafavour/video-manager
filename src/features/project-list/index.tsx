@@ -195,10 +195,10 @@ export function ProjectList() {
                       />
                     </div>
                   )}
-                  <ProjectTags tags={project.tags} query={debouncedQuery} />
                   <div className="text-xs text-muted-foreground">
                     {project.resourcesCount} resource(s)
                   </div>
+                  <ProjectTags tags={project.tags} query={debouncedQuery} />
                 </div>
               </Link>
             </DropZone>
@@ -246,10 +246,10 @@ export function ProjectList() {
                     </div>
                   )}
 
-                  <ProjectTags tags={project.tags} query={debouncedQuery} />
                   <div className="text-xs text-muted-foreground">
                     {project.resourcesCount} resource(s)
                   </div>
+                  <ProjectTags tags={project.tags} query={debouncedQuery} />
                 </div>
               </Link>
             </DropZone>
