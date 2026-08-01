@@ -180,8 +180,7 @@ export function MediaPreviewDialog({
   const exportFileName = (sourcePath: string, pieceName: string) => {
     const base = basename(sourcePath).replace(/\.\w+$/, "");
     const safe = pieceName.replace(/[\\/]/g, "-");
-    const ext = (sourcePath.match(/\.(\w+)$/) ?? [])[1] || "mp4";
-    return `${base}-${safe}.${ext}`;
+    return `${base}-${safe}.mp4`;
   };
 
   const handleExport = async (piece: ClipEntity) => {

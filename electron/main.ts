@@ -127,7 +127,8 @@ ipcMain.handle('app:export-clip', async (_event, payload: {
 
   // Mirror the source container so `-c copy` works across codecs (a .webm with
   // VP9/Opus tracks can't be remuxed to .mp4).
-  const ext = path.extname(payload.inputPath).slice(1) || 'mp4'
+  // Re-encoded to H.264 → always mp4 (H.264 isn't valid in .webm/.ogg).
+  const ext = 'mp4'
   const options: Electron.SaveDialogOptions = {
     title: 'Export clip',
     defaultPath: path.join(path.dirname(payload.inputPath), payload.defaultFileName),
@@ -145,19 +146,22 @@ ipcMain.handle('app:export-clip', async (_event, payload: {
     return { success: false, error: 'Output file must differ from the source' }
   }
 
-  // -ss AFTER -i = output seeking: decodes to the exact point and writes clean
-  // timestamps. -ss BEFORE -i (input seeking) with `-c copy` leaves a negative
-  // first timestamp that Chromium's demuxer refuses to play (black screen +
-  // bogus duration). -avoid_negative_ts make_zero normalizes the edit list.
+  // Frame-accurate lossless cuts are impossible: `-c copy` can't start between
+  // keyframes without leading black frames (Chromium shows black until the next
+  // keyframe). Re-encode to H.264 so the output begins with a fresh keyframe at
+  // the exact mark — no black, frame-accurate. `-ss` before -i keeps the seek
+  // fast (keyframe jump + decode-and-discard is frame-accurate when re-encoding).
   // -y avoids the overwrite prompt hanging when the save dialog replaced a file.
   const args = [
     '-y',
-    '-i', payload.inputPath,
     '-ss', String(payload.start),
-    '-t', String(duration),
+    '-i', payload.inputPath,
     '-map', '0',
-    '-c', 'copy',
-    '-avoid_negative_ts', 'make_zero',
+    '-c:v', 'libx264',
+    '-preset', 'veryfast',
+    '-crf', '18',
+    '-c:a', 'copy',
+    '-t', String(duration),
     outputPath,
   ]
 
