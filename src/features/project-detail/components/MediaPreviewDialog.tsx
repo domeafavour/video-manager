@@ -8,6 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { resources } from "@/services/resources";
 import { isTimeTag, parseTimeFromTag, createTimeTag } from "@/utils/time-tag";
+import { isAudio } from "@/utils/file-type";
+import { toFileUrl } from "@/utils/file-url";
 import { X, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -21,7 +23,7 @@ interface Props {
   initialTags: string[];
 }
 
-export function VideoPreviewDialog({
+export function MediaPreviewDialog({
   open,
   onOpenChange,
   resourceId,
@@ -29,6 +31,7 @@ export function VideoPreviewDialog({
   initialTags,
 }: Props) {
   const playerRef = useRef<HTMLVideoElement>(null);
+  const isAudioPreview = isAudio(resourcePath);
   const [tags, setTags] = useState<string[]>(initialTags || []);
   const [tagInput, setTagInput] = useState("");
 
@@ -89,12 +92,17 @@ export function VideoPreviewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-full h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Video Preview</DialogTitle>
+          <DialogTitle>{isAudioPreview ? "Audio Preview" : "Video Preview"}</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-hidden flex items-center justify-center bg-muted/30 rounded-md">
+        <div
+          className={cn(
+            "flex-1 flex items-center justify-center bg-muted/30 rounded-md",
+            !isAudioPreview && "overflow-hidden",
+          )}
+        >
           <ReactPlayer
             ref={playerRef}
-            src={`file://${resourcePath}`}
+            src={toFileUrl(resourcePath)}
             controls
             width="100%"
             height="100%"

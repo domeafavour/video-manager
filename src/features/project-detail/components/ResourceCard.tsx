@@ -13,7 +13,7 @@ import { TagList } from "@/components/ui/TagList";
 import { cn } from "@/lib/utils";
 import { resources } from "@/services/resources";
 import { MaterialEntity } from "@/typings";
-import { isImage, isVideo } from "@/utils/file-type";
+import { isAudio, isImage, isVideo } from "@/utils/file-type";
 import { formatBytes } from "@/utils/formatBytes";
 import {
   CheckIcon,
@@ -114,7 +114,7 @@ export function ResourceCard({
         <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-transparent" />
 
         <ButtonGroup className="absolute top-2 right-2 flex -translate-y-1">
-          {(isImage(material.path) || isVideo(material.path)) && (
+          {(isImage(material.path) || isVideo(material.path) || isAudio(material.path)) && (
             <PreviewResource resource={material}>
               <Button
                 variant="secondary"

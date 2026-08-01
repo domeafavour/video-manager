@@ -5,10 +5,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MaterialEntity } from "@/typings";
-import { isImage, isVideo } from "@/utils/file-type";
+import { isAudio, isImage, isVideo } from "@/utils/file-type";
+import { toFileUrl } from "@/utils/file-url";
 import { useDisclosure } from "@domeadev/react-disclosure";
 import { Slot, SlotProps } from "@radix-ui/react-slot";
-import { VideoPreviewDialog } from "./VideoPreviewDialog";
+import { MediaPreviewDialog } from "./MediaPreviewDialog";
 
 interface Props extends Omit<SlotProps, "resource"> {
   resource: MaterialEntity;
@@ -29,8 +30,8 @@ export function PreviewResource({ resource, children, ...props }: Props) {
       >
         {children}
       </Slot>
-      {isVideo(resource.path) ? (
-        <VideoPreviewDialog
+      {isVideo(resource.path) || isAudio(resource.path) ? (
+        <MediaPreviewDialog
           open={open}
           onOpenChange={toggleOpen}
           resourceId={resource.id}
@@ -46,7 +47,7 @@ export function PreviewResource({ resource, children, ...props }: Props) {
             </DialogHeader>
             <div className="flex-1 overflow-hidden flex items-center justify-center bg-muted/30 rounded-md">
               <img
-                src={`file://${resource.path}`}
+                src={toFileUrl(resource.path)}
                 alt="Preview"
                 className="max-w-full max-h-full object-contain"
               />
