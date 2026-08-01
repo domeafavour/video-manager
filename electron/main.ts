@@ -145,15 +145,19 @@ ipcMain.handle('app:export-clip', async (_event, payload: {
     return { success: false, error: 'Output file must differ from the source' }
   }
 
-  // Fast input seek + lossless stream copy. -ss before -i = keyframe-granular
-  // seek; -t after -i sets the output duration; -y avoids the overwrite prompt
-  // hanging when the save dialog replaced an existing file.
+  // -ss AFTER -i = output seeking: decodes to the exact point and writes clean
+  // timestamps. -ss BEFORE -i (input seeking) with `-c copy` leaves a negative
+  // first timestamp that Chromium's demuxer refuses to play (black screen +
+  // bogus duration). -avoid_negative_ts make_zero normalizes the edit list.
+  // -y avoids the overwrite prompt hanging when the save dialog replaced a file.
   const args = [
     '-y',
-    '-ss', String(payload.start),
     '-i', payload.inputPath,
+    '-ss', String(payload.start),
     '-t', String(duration),
+    '-map', '0',
     '-c', 'copy',
+    '-avoid_negative_ts', 'make_zero',
     outputPath,
   ]
 
