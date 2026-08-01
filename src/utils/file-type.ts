@@ -5,3 +5,7 @@ export function isImage(path: string) {
 export function isVideo(path: string) {
   return /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(path);
 }
+
+export function isAudio(path: string) {
+  return /\.(mp3|wav|flac|m4a)$/i.test(path);
+}
