@@ -209,6 +209,7 @@ export function MediaPreviewDialog({
           name: basename(res.outputPath),
           path: res.outputPath,
           size: res.size,
+          sourceName: source.name,
         });
       }
     } catch (err) {
