@@ -25,3 +25,9 @@ declare namespace NodeJS {
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
 }
+
+// ffmpeg-static is CommonJS with no types; it default-exports the binary path
+declare module 'ffmpeg-static' {
+  const ffmpegPath: string
+  export default ffmpegPath
+}

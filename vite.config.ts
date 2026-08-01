@@ -22,7 +22,7 @@ export default defineConfig({
           build: {
             sourcemap: true,
             rollupOptions: {
-              external: [],
+              external: ["ffmpeg-static"],
             },
           },
         },

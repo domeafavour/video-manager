@@ -208,6 +208,14 @@ export function ResourceCard({
         >
           {material.name}
         </div>
+        {material.sourceName && (
+          <div
+            className="text-xs text-muted-foreground/80 truncate"
+            title={`Piece of ${material.sourceName}`}
+          >
+            piece of {material.sourceName}
+          </div>
+        )}
         <div className="text-xs text-muted-foreground">
           {formatBytes(material.size)}
         </div>

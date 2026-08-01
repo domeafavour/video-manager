@@ -20,4 +20,13 @@ export interface MaterialEntity extends BaseEntity {
   status: 'used' | 'unused';
   tags?: string[];
   deletedAt?: number;
+  /** Set on materials exported from a video piece — the source material's name. */
+  sourceName?: string;
+}
+
+export interface ClipEntity extends BaseEntity {
+  materialId: number;
+  name: string;
+  start: number; // seconds, fractional ok
+  end: number; // seconds, fractional ok
 }

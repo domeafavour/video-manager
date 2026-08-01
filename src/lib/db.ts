@@ -1,4 +1,4 @@
-import { MaterialEntity, ProjectEntity } from "@/typings";
+import { ClipEntity, MaterialEntity, ProjectEntity } from "@/typings";
 import { DBSchema, IDBPDatabase, openDB } from "idb";
 
 interface VideoManagerDB extends DBSchema {
@@ -12,10 +12,15 @@ interface VideoManagerDB extends DBSchema {
     value: MaterialEntity;
     indexes: { "projectId": number; "updatedAt": number; "deletedAt": number };
   };
+  clips: {
+    key: number;
+    value: ClipEntity;
+    indexes: { "materialId": number };
+  };
 }
 
 const DB_NAME = "video-manager-db";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 let dbPromise: Promise<IDBPDatabase<VideoManagerDB>>;
 
@@ -70,6 +75,15 @@ function getDB() {
           if (!materialStore.indexNames.contains("deletedAt")) {
             materialStore.createIndex("deletedAt", "deletedAt");
           }
+        }
+
+        // Version 5: clips store (split video pieces)
+        if (!db.objectStoreNames.contains("clips")) {
+          const clipStore = db.createObjectStore("clips", {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+          clipStore.createIndex("materialId", "materialId");
         }
       },
     });
@@ -239,6 +253,30 @@ export const db = {
     const db = await getDB();
     const allMaterials = await db.getAll("materials");
     return allMaterials.filter((m) => m.path === filePath);
+  },
+  getClipsByMaterial: async (materialId: number): Promise<ClipEntity[]> => {
+    const db = await getDB();
+    const clips = await db.getAllFromIndex("clips", "materialId", materialId);
+    return clips.sort((a, b) => b.updatedAt - a.updatedAt);
+  },
+  saveClip: async (clip: Partial<ClipEntity>) => {
+    const db = await getDB();
+    const now = Date.now();
+    let data: ClipEntity;
+    if (clip.id) {
+      const existing = await db.get("clips", clip.id);
+      if (!existing) throw new Error("Clip not found");
+      data = { ...existing, ...clip, updatedAt: now } as ClipEntity;
+    } else {
+      data = { ...clip, createdAt: now, updatedAt: now } as ClipEntity;
+    }
+    const id = await db.put("clips", data);
+    return { ...data, id };
+  },
+  deleteClip: async (id: number) => {
+    const db = await getDB();
+    await db.delete("clips", id);
+    return id;
   },
   deleteNativeFile: async (filePath: string): Promise<{ success: boolean; error?: string }> => {
     return window.ipcRenderer.invoke("app:delete-native-file", filePath) as Promise<{ success: boolean; error?: string }>;
