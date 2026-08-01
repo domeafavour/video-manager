@@ -1,5 +1,6 @@
 import { DBSchema, IDBPDatabase, openDB } from "idb";
 import { isImage, isVideo } from "@/utils/file-type";
+import { toFileUrl } from "@/utils/file-url";
 
 interface ThumbnailDB extends DBSchema {
   thumbnails: {
@@ -51,14 +52,14 @@ function generateImageThumbnail(path: string): Promise<string> {
       resolve(canvas.toDataURL("image/jpeg", 0.7));
     };
     img.onerror = reject;
-    img.src = `file://${path}`;
+    img.src = toFileUrl(path);
   });
 }
 
 function generateVideoThumbnail(path: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
-    video.src = `file://${path}#t=0.1`;
+    video.src = `${toFileUrl(path)}#t=0.1`;
     video.preload = "metadata";
     video.muted = true;
     video.addEventListener("loadeddata", () => {

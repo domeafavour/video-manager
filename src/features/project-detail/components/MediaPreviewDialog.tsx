@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { resources } from "@/services/resources";
 import { isTimeTag, parseTimeFromTag, createTimeTag } from "@/utils/time-tag";
 import { isAudio } from "@/utils/file-type";
+import { toFileUrl } from "@/utils/file-url";
 import { X, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -101,7 +102,7 @@ export function MediaPreviewDialog({
         >
           <ReactPlayer
             ref={playerRef}
-            src={`file://${resourcePath}`}
+            src={toFileUrl(resourcePath)}
             controls
             width="100%"
             height="100%"
