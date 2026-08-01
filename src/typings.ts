@@ -21,3 +21,10 @@ export interface MaterialEntity extends BaseEntity {
   tags?: string[];
   deletedAt?: number;
 }
+
+export interface ClipEntity extends BaseEntity {
+  materialId: number;
+  name: string;
+  start: number; // seconds, fractional ok
+  end: number; // seconds, fractional ok
+}

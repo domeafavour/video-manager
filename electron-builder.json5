@@ -4,6 +4,7 @@
   "appId": "com.domeadev.videomanager",
   "npmRebuild": false,
   "asar": true,
+  "asarUnpack": ["node_modules/ffmpeg-static/**/*"],
   "productName": "Video Manager",
   "directories": {
     "output": "release/${version}"

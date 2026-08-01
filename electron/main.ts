@@ -3,6 +3,8 @@ import { app, BrowserWindow, ipcMain, dialog, shell, nativeImage } from 'electro
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs'
+import { spawn } from 'node:child_process'
+import ffmpegPath from 'ffmpeg-static'
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -30,6 +32,10 @@ if (VITE_DEV_SERVER_URL) {
 }
 
 let win: BrowserWindow | null
+
+// ffmpeg-static ships the binary inside the asar when packaged; binaries can't
+// be spawned from inside an asar, so resolve to the unpacked copy (a no-op in dev).
+const FFMPEG = (ffmpegPath ?? '').replace('app.asar', 'app.asar.unpacked')
 
 function createWindow() {
   win = new BrowserWindow({
@@ -105,6 +111,69 @@ ipcMain.on('app:start-drag', (event, payload: string | string[]) => {
       : ({ files, icon } as unknown as Parameters<Electron.WebContents['startDrag']>[0])
 
   event.sender.startDrag(dragItem)
+})
+
+ipcMain.handle('app:export-clip', async (_event, payload: {
+  inputPath: string
+  start: number
+  end: number
+  defaultFileName: string
+}) => {
+  if (!FFMPEG) return { success: false, error: 'ffmpeg binary not found' }
+  if (!fs.existsSync(payload.inputPath)) return { success: false, error: 'Source file not found' }
+
+  const duration = payload.end - payload.start
+  if (!(duration > 0)) return { success: false, error: 'Invalid clip range' }
+
+  // Mirror the source container so `-c copy` works across codecs (a .webm with
+  // VP9/Opus tracks can't be remuxed to .mp4).
+  const ext = path.extname(payload.inputPath).slice(1) || 'mp4'
+  const options: Electron.SaveDialogOptions = {
+    title: 'Export clip',
+    defaultPath: path.join(path.dirname(payload.inputPath), payload.defaultFileName),
+    filters: [{ name: 'Video', extensions: [ext] }],
+  }
+  const saved = win ? await dialog.showSaveDialog(win, options) : await dialog.showSaveDialog(options)
+  if (saved.canceled || !saved.filePath) return { canceled: true }
+
+  const outputPath = saved.filePath
+  // Compare canonicalized paths (case + symlinks) so `-y` can never overwrite
+  // the source in place on case-insensitive filesystems.
+  const inputReal = fs.realpathSync(payload.inputPath)
+  const outputReal = fs.existsSync(outputPath) ? fs.realpathSync(outputPath) : outputPath
+  if (outputReal === inputReal) {
+    return { success: false, error: 'Output file must differ from the source' }
+  }
+
+  // Fast input seek + lossless stream copy. -ss before -i = keyframe-granular
+  // seek; -t after -i sets the output duration; -y avoids the overwrite prompt
+  // hanging when the save dialog replaced an existing file.
+  const args = [
+    '-y',
+    '-ss', String(payload.start),
+    '-i', payload.inputPath,
+    '-t', String(duration),
+    '-c', 'copy',
+    outputPath,
+  ]
+
+  return new Promise((resolve) => {
+    const proc = spawn(FFMPEG, args)
+    let stderr = ''
+    proc.stderr.on('data', (d: Buffer) => { stderr += d.toString() })
+    proc.on('error', (err) => resolve({ success: false, error: err.message }))
+    proc.on('close', (code) => {
+      if (code === 0) {
+        try {
+          resolve({ success: true, outputPath, size: fs.statSync(outputPath).size })
+        } catch {
+          resolve({ success: false, error: 'Output file was not created' })
+        }
+      } else {
+        resolve({ success: false, error: stderr.trim().slice(-2000) })
+      }
+    })
+  })
 })
 
 app.on('activate', () => {
