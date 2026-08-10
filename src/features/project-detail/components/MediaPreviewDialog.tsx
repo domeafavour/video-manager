@@ -36,9 +36,14 @@ export function MediaPreviewDialog({
 
   const getCurrentTime = () => playerRef.current?.currentTime ?? null;
 
+  // Seek the element and sync React state immediately, so the playhead doesn't
+  // lag behind the imperative seek (timeupdate fires asynchronously).
   const seekTo = (time: number) => {
     const player = playerRef.current;
-    if (player) player.currentTime = time;
+    if (player) {
+      player.currentTime = time;
+      setCurrentTime(time);
+    }
   };
 
   // Play a range; the player auto-pauses when it reaches the end (see onTimeUpdate).
@@ -47,6 +52,7 @@ export function MediaPreviewDialog({
     if (!player) return;
     playbackEndRef.current = end;
     player.currentTime = start;
+    setCurrentTime(start);
     player.play();
   };
 
@@ -103,6 +109,7 @@ export function MediaPreviewDialog({
                   duration={duration}
                   getCurrentTime={getCurrentTime}
                   playRange={playRange}
+                  onSeek={seekTo}
                 />
               )}
             </div>

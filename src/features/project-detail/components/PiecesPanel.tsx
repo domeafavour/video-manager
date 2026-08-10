@@ -28,6 +28,7 @@ function PieceTimeline({
   outTime,
   pieces,
   onSelect,
+  onSeek,
 }: {
   time: number;
   duration: number;
@@ -35,10 +36,46 @@ function PieceTimeline({
   outTime: number | null;
   pieces: ClipEntity[];
   onSelect: (piece: ClipEntity) => void;
+  onSeek: (time: number) => void;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+  const [scrubTime, setScrubTime] = useState<number | null>(null);
+
+  const timeFromEvent = (clientX: number) => {
+    const el = ref.current;
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    const pctX = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    return pctX * duration;
+  };
+
+  const seekFromEvent = (clientX: number) => {
+    const t = timeFromEvent(clientX);
+    if (t !== null) {
+      onSeek(t);
+      setScrubTime(t);
+    }
+  };
+
   if (duration <= 0) return null;
   return (
-    <div className="relative h-10 rounded-md bg-muted/70 border border-border">
+    <div
+      ref={ref}
+      className="relative h-10 rounded-md bg-muted/70 border border-border cursor-grab active:cursor-grabbing"
+      onPointerDown={(e) => {
+        draggingRef.current = true;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        seekFromEvent(e.clientX);
+      }}
+      onPointerMove={(e) => {
+        if (draggingRef.current) seekFromEvent(e.clientX);
+      }}
+      onPointerUp={() => {
+        draggingRef.current = false;
+        setScrubTime(null);
+      }}
+    >
       {inTime !== null && outTime !== null && outTime > inTime && (
         <div
           className="absolute inset-y-0 bg-chart-3/20 border-x-2 border-chart-3/60"
@@ -65,7 +102,7 @@ function PieceTimeline({
       ))}
       <div
         className="absolute inset-y-0 w-0.5 bg-foreground/80"
-        style={{ left: `${pct(time, duration)}%` }}
+        style={{ left: `${pct(scrubTime ?? time, duration)}%` }}
       />
     </div>
   );
@@ -138,6 +175,7 @@ interface PiecesPanelProps {
   duration: number;
   getCurrentTime: () => number | null;
   playRange: (start: number, end: number) => void;
+  onSeek: (time: number) => void;
 }
 
 export function PiecesPanel({
@@ -147,6 +185,7 @@ export function PiecesPanel({
   duration,
   getCurrentTime,
   playRange,
+  onSeek,
 }: PiecesPanelProps) {
   const wasOpenRef = useRef(false);
   const [inTime, setInTime] = useState<number | null>(null);
@@ -203,6 +242,7 @@ export function PiecesPanel({
         outTime={outTime}
         pieces={pieces ?? []}
         onSelect={handlePlayPiece}
+        onSeek={onSeek}
       />
       <div className="flex items-center gap-2 flex-wrap">
         <Button variant="outline" size="sm" onClick={handleSetIn}>
