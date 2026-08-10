@@ -21,16 +21,6 @@ type ExportResult =
   | { success: false; error: string }
   | { canceled: true };
 
-interface Props {
-  resourceId: number;
-  resourcePath: string;
-  open: boolean;
-  currentTime: number;
-  duration: number;
-  getCurrentTime: () => number | null;
-  playRange: (start: number, end: number) => void;
-}
-
 function PieceTimeline({
   time,
   duration,
@@ -141,33 +131,32 @@ function PieceCard({
   );
 }
 
+interface PiecesPanelProps {
+  resourceId: number;
+  open: boolean;
+  currentTime: number;
+  duration: number;
+  getCurrentTime: () => number | null;
+  playRange: (start: number, end: number) => void;
+}
+
 export function PiecesPanel({
   resourceId,
-  resourcePath,
   open,
   currentTime,
   duration,
   getCurrentTime,
   playRange,
-}: Props) {
+}: PiecesPanelProps) {
   const wasOpenRef = useRef(false);
   const [inTime, setInTime] = useState<number | null>(null);
   const [outTime, setOutTime] = useState<number | null>(null);
   const [clipName, setClipName] = useState("");
-  const [exportingId, setExportingId] = useState<number | null>(null);
 
   const { data: pieces } = clips.list.useQuery({ variables: resourceId, enabled: open });
   const { mutate: saveClip } = clips.save.useMutation({
     onSuccess: () => toast.success("Piece added"),
     onError: () => toast.error("Failed to add piece"),
-  });
-  const { mutate: deleteClip } = clips.delete.useMutation({
-    onSuccess: () => toast.success("Piece removed"),
-    onError: () => toast.error("Failed to remove piece"),
-  });
-  const { mutate: createMaterial } = resources.create.useMutation({
-    onSuccess: () => toast.success("Added to project"),
-    onError: () => toast.error("Failed to add to project"),
   });
 
   // Reset piece-marking state only on a fresh open.
@@ -176,7 +165,6 @@ export function PiecesPanel({
       setInTime(null);
       setOutTime(null);
       setClipName("");
-      setExportingId(null);
     }
     wasOpenRef.current = open;
   }, [open]);
@@ -203,6 +191,78 @@ export function PiecesPanel({
     setInTime(null);
     setOutTime(null);
   };
+
+  const handlePlayPiece = (piece: ClipEntity) => playRange(piece.start, piece.end);
+
+  return (
+    <div className="space-y-3">
+      <PieceTimeline
+        time={currentTime}
+        duration={duration}
+        inTime={inTime}
+        outTime={outTime}
+        pieces={pieces ?? []}
+        onSelect={handlePlayPiece}
+      />
+      <div className="flex items-center gap-2 flex-wrap">
+        <Button variant="outline" size="sm" onClick={handleSetIn}>
+          Set In
+          {inTime !== null && (
+            <span className="ml-1 font-mono text-xs">{formatTime(inTime)}</span>
+          )}
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleSetOut}>
+          Set Out
+          {outTime !== null && (
+            <span className="ml-1 font-mono text-xs">{formatTime(outTime)}</span>
+          )}
+        </Button>
+        <Input
+          value={clipName}
+          onChange={(e) => setClipName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddPiece();
+          }}
+          placeholder="Piece name"
+          className="flex-1 min-w-32 h-8 text-sm"
+        />
+        <Button size="sm" onClick={handleAddPiece}>
+          <Scissors className="w-3.5 h-3.5 mr-1" />
+          Split
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+interface PieceCardListProps {
+  resourceId: number;
+  resourcePath: string;
+  open: boolean;
+  playRange: (start: number, end: number) => void;
+}
+
+export function PieceCardList({ resourceId, resourcePath, open, playRange }: PieceCardListProps) {
+  const wasOpenRef = useRef(false);
+  const [exportingId, setExportingId] = useState<number | null>(null);
+
+  const { data: pieces } = clips.list.useQuery({ variables: resourceId, enabled: open });
+  const { mutate: deleteClip } = clips.delete.useMutation({
+    onSuccess: () => toast.success("Piece removed"),
+    onError: () => toast.error("Failed to remove piece"),
+  });
+  const { mutate: createMaterial } = resources.create.useMutation({
+    onSuccess: () => toast.success("Added to project"),
+    onError: () => toast.error("Failed to add to project"),
+  });
+
+  // Reset export state only on a fresh open.
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      setExportingId(null);
+    }
+    wasOpenRef.current = open;
+  }, [open]);
 
   const handlePlayPiece = (piece: ClipEntity) => playRange(piece.start, piece.end);
 
@@ -252,67 +312,27 @@ export function PiecesPanel({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 pt-3 border-t">
-      <div className="flex-1 space-y-3 min-w-0">
-        <PieceTimeline
-          time={currentTime}
-          duration={duration}
-          inTime={inTime}
-          outTime={outTime}
-          pieces={pieces ?? []}
-          onSelect={handlePlayPiece}
-        />
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={handleSetIn}>
-            Set In
-            {inTime !== null && (
-              <span className="ml-1 font-mono text-xs">{formatTime(inTime)}</span>
-            )}
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleSetOut}>
-            Set Out
-            {outTime !== null && (
-              <span className="ml-1 font-mono text-xs">{formatTime(outTime)}</span>
-            )}
-          </Button>
-          <Input
-            value={clipName}
-            onChange={(e) => setClipName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleAddPiece();
-            }}
-            placeholder="Piece name"
-            className="flex-1 min-w-32 h-8 text-sm"
+    <>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium">Pieces</h3>
+        <span className="text-xs text-muted-foreground">{pieces?.length ?? 0}</span>
+      </div>
+      <div className="space-y-2 flex-1 min-h-0 overflow-y-auto max-h-48 md:max-h-none">
+        {pieces?.map((piece, i) => (
+          <PieceCard
+            key={piece.id}
+            piece={piece}
+            index={i}
+            exportingId={exportingId}
+            onPlay={handlePlayPiece}
+            onExport={handleExport}
+            onRemove={(id) => deleteClip({ id })}
           />
-          <Button size="sm" onClick={handleAddPiece}>
-            <Scissors className="w-3.5 h-3.5 mr-1" />
-            Split
-          </Button>
-        </div>
+        ))}
+        {(!pieces || pieces.length === 0) && (
+          <p className="text-xs text-muted-foreground">No pieces yet.</p>
+        )}
       </div>
-
-      <div className="md:w-72 shrink-0 border-t md:border-t-0 md:border-l border-border pt-3 md:pt-0 md:pl-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Pieces</h3>
-          <span className="text-xs text-muted-foreground">{pieces?.length ?? 0}</span>
-        </div>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {pieces?.map((piece, i) => (
-            <PieceCard
-              key={piece.id}
-              piece={piece}
-              index={i}
-              exportingId={exportingId}
-              onPlay={handlePlayPiece}
-              onExport={handleExport}
-              onRemove={(id) => deleteClip({ id })}
-            />
-          ))}
-          {(!pieces || pieces.length === 0) && (
-            <p className="text-xs text-muted-foreground">No pieces yet.</p>
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
