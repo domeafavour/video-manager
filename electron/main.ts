@@ -184,6 +184,33 @@ ipcMain.handle('app:export-clip', async (_event, payload: {
   })
 })
 
+ipcMain.handle('app:save-text-file', async (_event, payload: {
+  defaultFileName: string
+  content: string
+  extension: string
+}) => {
+  // The renderer never supplies the destination path — the user picks it in the
+  // native dialog, so a compromised renderer cannot choose where text lands.
+  const options: Electron.SaveDialogOptions = {
+    title: 'Export',
+    defaultPath: payload.defaultFileName,
+    filters: [{ name: payload.extension.toUpperCase(), extensions: [payload.extension] }],
+  }
+  const saved = win ? await dialog.showSaveDialog(win, options) : await dialog.showSaveDialog(options)
+  if (saved.canceled || !saved.filePath) return { canceled: true }
+
+  try {
+    fs.writeFileSync(saved.filePath, payload.content, 'utf8')
+    return {
+      success: true,
+      outputPath: saved.filePath,
+      size: Buffer.byteLength(payload.content, 'utf8'),
+    }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
+  }
+})
+
 app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.

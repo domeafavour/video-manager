@@ -41,3 +41,21 @@ export function formatTime(seconds: number): string {
 export function createTimeTag(seconds: number, text: string): string {
   return `${formatTime(seconds)} ${text}`;
 }
+
+/**
+ * Format seconds to a zero-padded timestamp with milliseconds, e.g. "00:00:16,240".
+ * Always emits HH:MM:SS so the width is stable. `separator` is the ms delimiter:
+ * "," is the SubRip (SRT) convention, "." the common alternative for plain text.
+ */
+export function formatTimestamp(seconds: number, separator = ','): string {
+  // Clamp before splitting into components so negative input can't produce
+  // "-1:-1:-1" once the floors run.
+  const totalMs = Math.max(0, Math.round(seconds * 1000));
+  const hours = Math.floor(totalMs / 3_600_000);
+  const minutes = Math.floor((totalMs % 3_600_000) / 60_000);
+  const secs = Math.floor((totalMs % 60_000) / 1000);
+  const ms = totalMs % 1000;
+
+  const pad = (n: number, width = 2) => n.toString().padStart(width, '0');
+  return `${pad(hours)}:${pad(minutes)}:${pad(secs)}${separator}${pad(ms, 3)}`;
+}

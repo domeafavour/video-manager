@@ -1,4 +1,10 @@
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
@@ -6,9 +12,14 @@ import { clips } from "@/services/clips";
 import { resources } from "@/services/resources";
 import { ClipEntity } from "@/typings";
 import { formatTime } from "@/utils/time-tag";
-import { Loader2, Play, Scissors, Trash2, Upload } from "lucide-react";
+import { Download, Loader2, Play, Scissors, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+  buildClipExport,
+  ClipExportFormat,
+  clipExportFileName,
+} from "../utils/clip-export";
 
 const SEGMENT_COLORS = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5"];
 
@@ -20,7 +31,6 @@ type ExportResult =
   | { success: true; outputPath: string; size: number }
   | { success: false; error: string }
   | { canceled: true };
-
 function PieceTimeline({
   time,
   duration,
@@ -306,6 +316,28 @@ export function PieceCardList({ resourceId, resourcePath, open, playRange }: Pie
 
   const handlePlayPiece = (piece: ClipEntity) => playRange(piece.start, piece.end);
 
+  const handleExportPieces = async (format: ClipExportFormat) => {
+    if (!pieces || pieces.length === 0) {
+      toast.error("No pieces to export");
+      return;
+    }
+    try {
+      const res = (await window.ipcRenderer.invoke("app:save-text-file", {
+        defaultFileName: clipExportFileName(resourcePath, format),
+        content: buildClipExport(pieces, format),
+        extension: format,
+      })) as ExportResult;
+      if ("canceled" in res) return;
+      if (!res.success) {
+        toast.error(res.error || "Export failed");
+        return;
+      }
+      toast.success(`Exported ${pieces.length} pieces to ${res.outputPath}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Export failed");
+    }
+  };
+
   // Cross-platform basename (Windows paths use "\"). Avoids node:path in the
   // renderer; the main process already resolves real paths via its own path.
   const basename = (p: string) => p.split(/[\\/]/).pop() ?? p;
@@ -355,7 +387,28 @@ export function PieceCardList({ resourceId, resourcePath, open, playRange }: Pie
     <>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">Pieces</h3>
-        <span className="text-xs text-muted-foreground">{pieces?.length ?? 0}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-muted-foreground">{pieces?.length ?? 0}</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
+                disabled={!pieces || pieces.length === 0}
+                title="Export pieces"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => handleExportPieces("srt")}>
+                Export as .srt
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExportPieces("txt")}>
+                Export as .txt
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="space-y-2 flex-1 min-h-0 overflow-y-auto max-h-48 md:max-h-none">
         {pieces?.map((piece, i) => (
