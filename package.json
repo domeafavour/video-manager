@@ -65,6 +65,8 @@
   "main": "dist-electron/main.js",
   "pnpm": {
     "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
       "ffmpeg-static"
     ]
   }
